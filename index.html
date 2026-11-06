@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rəqəmsal İqtisadiyyat Vergi Naviqatoru</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --brand:#12808a; --brand-2:#0e6c75; --brand-soft:#e3f1f2;
+  --bg:#ebf1f0; --card:#ffffff; --line:#e1e8e7; --line-2:#cfdad9;
+  --text:#18262b; --text-2:#4c5b60; --muted:#6f7d82;
+  --s1:#0092a3; --s2:#eb6834;
+  --good:#0ca30c; --good-ink:#0a6e0a; --good-bg:#e5f5e5;
+  --warn:#fab219; --warn-ink:#7a5200; --warn-bg:#fff4dc;
+  --crit:#d03b3b; --crit-ink:#a42a2a; --crit-bg:#fbe9e9;
+  --info-bg:#e8f2fb; --info-ink:#1d5a96;
+  --radius:10px; --shadow:0 1px 2px rgba(16,40,44,.06),0 2px 8px rgba(16,40,44,.05);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+a{color:var(--brand-2)}
+button{font:inherit;cursor:pointer}
+input,select{font:inherit;color:var(--text)}
+.app{display:flex;min-height:100vh}
+
+/* ---------- Sidebar ---------- */
+.side{width:250px;flex-shrink:0;background:linear-gradient(180deg,var(--brand) 0%,var(--brand-2) 100%);color:#fff;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;z-index:20}
+.brand{display:flex;gap:10px;align-items:center;padding:22px 18px 18px}
+.brand-mark{width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;flex-shrink:0}
+.brand-text{font-size:11px;font-weight:700;letter-spacing:.02em;line-height:1.3;text-transform:uppercase}
+.nav{flex:1;overflow-y:auto;padding:4px 0 10px}
+.nav a{display:flex;align-items:center;gap:14px;padding:12px 22px;color:rgba(255,255,255,.88);text-decoration:none;font-size:14px;border-left:3px solid transparent}
+.nav a:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav a.active{background:rgba(255,255,255,.14);color:#fff;font-weight:600;border-left-color:#fff}
+.nav svg{width:22px;height:22px;flex-shrink:0}
+.side-foot{padding:12px 18px 16px;font-size:11px;color:rgba(255,255,255,.75);border-top:1px solid rgba(255,255,255,.15)}
+.side-foot b{color:#fff}
+.side-btn{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:7px 10px;font-size:12px;font-weight:600}
+.side-btn:hover{background:rgba(255,255,255,.22)}
+.fdot{width:8px;height:8px;border-radius:50%;background:#c9d4d3;display:inline-block;margin-right:5px;vertical-align:0}
+.fdot[data-s=live],.fdot[data-s=server]{background:#5fe05f}.fdot[data-s=cached]{background:var(--warn)}.fdot[data-s=once]{background:#7fd6df}.fdot[data-s=error]{background:#ff8a8a}
+.md div+ul,.md ul+div,.md div+div{margin-top:6px}
+
+/* ---------- Main ---------- */
+.main{flex:1;min-width:0;padding:22px 28px 40px}
+.topbar{display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.burger{display:none;background:var(--brand);color:#fff;border:0;border-radius:8px;width:40px;height:40px}
+.page-title{font-size:22px;font-weight:700;flex:1;min-width:200px}
+.page-sub{font-size:13px;color:var(--text-2);font-weight:400;margin-top:2px}
+.search{position:relative;width:320px;max-width:100%}
+.search input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line-2);border-radius:8px;background:#fff}
+.search input:focus{outline:2px solid var(--s1);outline-offset:0;border-color:transparent}
+.search svg{position:absolute;left:11px;top:11px;width:16px;height:16px;color:var(--muted)}
+.search-res{position:absolute;top:44px;left:0;right:0;background:#fff;border:1px solid var(--line-2);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);max-height:360px;overflow:auto;display:none;z-index:30}
+.search-res.open{display:block}
+.search-res button{display:block;width:100%;text-align:left;border:0;background:none;padding:9px 12px;border-bottom:1px solid var(--line)}
+.search-res button:hover{background:var(--brand-soft)}
+.search-res small{display:block;color:var(--muted);font-size:11px}
+.datechip{font-size:12px;color:var(--text-2);background:#fff;border:1px solid var(--line-2);border-radius:999px;padding:6px 12px;white-space:nowrap}
+
+.page{display:none}
+.page.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 18px 16px;position:relative}
+.card h3{font-size:16px;font-weight:600;margin-bottom:2px}
+.card .sub{font-size:12px;color:var(--muted)}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.span2{grid-column:span 2}
+.mt16{margin-top:16px}
+
+/* KPI */
+.kpi{display:flex;flex-direction:column;min-height:168px;cursor:default}
+.kpi.link{cursor:pointer}
+.kpi.link:hover{outline:2px solid var(--brand-soft)}
+.kpi h3{font-size:15px}
+.kpi-body{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:14px;flex:1}
+.kpi-val{font-size:26px;font-weight:700;letter-spacing:-.01em;line-height:1.1}
+.kpi-val small{font-size:14px;font-weight:600;color:var(--text-2)}
+.kpi-foot{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--text-2);flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;border-radius:4px;padding:2px 7px}
+.chip svg{width:12px;height:12px}
+.chip.good{background:var(--good-bg);color:var(--good-ink)}
+.chip.warn{background:var(--warn-bg);color:var(--warn-ink)}
+.chip.crit{background:var(--crit-bg);color:var(--crit-ink)}
+.chip.info{background:var(--info-bg);color:var(--info-ink)}
+.chip.neutral{background:#eef1f1;color:var(--text-2)}
+.spark{width:120px;height:56px;flex-shrink:0}
+
+/* ticker */
+.ticker{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin-top:16px;overflow:hidden;display:flex;align-items:stretch}
+.ticker-label{background:var(--brand-soft);color:var(--brand-2);font-weight:700;font-size:12px;padding:12px 14px;display:flex;align-items:center;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+.ticker-track{overflow:hidden;flex:1;position:relative}
+.ticker-inner{display:flex;width:max-content;animation:scroll 60s linear infinite}
+.ticker:hover .ticker-inner{animation-play-state:paused}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tick{padding:9px 22px;border-right:1px solid var(--line);font-size:12px;white-space:nowrap}
+.tick b{display:block;font-size:13px;color:var(--text)}
+.tick span{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.ticker-inner{animation:none}}
+
+/* chart cards */
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+.chart-head h3{font-size:18px}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:7px;overflow:hidden;flex-shrink:0}
+.seg button{border:0;background:#fff;padding:5px 10px;font-size:12px;color:var(--text-2)}
+.seg button+button{border-left:1px solid var(--line-2)}
+.seg button.on{background:var(--brand);color:#fff}
+.chart{width:100%;position:relative}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart text{font-family:inherit}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--text-2);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.tbl-wrap{display:none;max-height:300px;overflow:auto}
+.show-table .tbl-wrap{display:block}
+.show-table .chart,.show-table .legend{display:none}
+table.dt{width:100%;border-collapse:collapse;font-size:13px}
+table.dt th{text-align:left;font-weight:600;color:var(--text-2);background:#f5f8f8;padding:8px 10px;border-bottom:1px solid var(--line-2);position:sticky;top:0}
+table.dt td{padding:8px 10px;border-bottom:1px solid var(--line)}
+table.dt td.num,table.dt th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tip{position:fixed;pointer-events:none;background:#fff;border:1px solid var(--line-2);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.14);padding:8px 10px;font-size:12px;z-index:100;display:none;min-width:140px}
+.tip b{display:block;font-size:13px;margin-bottom:2px}
+.tip .row{display:flex;justify-content:space-between;gap:14px}
+.tip .row span:first-child{color:var(--text-2)}
+.tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+
+.split{display:flex;gap:2px;height:28px;border-radius:5px;overflow:hidden;margin:14px 0 10px}
+.split div{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+.split-legend{display:flex;justify-content:space-between;font-size:12px;color:var(--text-2);gap:10px}
+.split-legend b{color:var(--text);font-size:20px;display:block}
+
+/* ---------- Wizard ---------- */
+.wiz{max-width:880px}
+.progress{height:6px;background:#dfe7e6;border-radius:99px;overflow:hidden;margin:6px 0 18px}
+.progress div{height:100%;background:var(--s1);transition:width .3s}
+.wiz-step-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.wiz h2{font-size:20px;margin:4px 0 6px}
+.wiz .hint{color:var(--text-2);margin-bottom:16px}
+.opts{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.opt{border:1.5px solid var(--line-2);background:#fff;border-radius:10px;padding:14px;text-align:left;display:flex;gap:12px;align-items:flex-start;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--s1);background:#f6fbfb}
+.opt.sel{border-color:var(--s1);background:#eaf6f7}
+.opt .ic{width:34px;height:34px;border-radius:8px;background:var(--brand-soft);color:var(--brand-2);display:grid;place-items:center;flex-shrink:0}
+.opt .ic svg{width:18px;height:18px}
+.opt b{display:block;font-size:14px}
+.opt small{color:var(--text-2);font-size:12px}
+.group-title{font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;margin:16px 0 8px}
+.wiz-nav{display:flex;justify-content:space-between;margin-top:20px;gap:10px}
+.btn{border:0;border-radius:8px;padding:10px 18px;font-weight:600;background:var(--brand);color:#fff}
+.btn:hover{background:var(--brand-2)}
+.btn:disabled{background:#b9c7c6;cursor:not-allowed}
+.btn.ghost{background:#fff;color:var(--brand-2);border:1px solid var(--line-2)}
+.btn.ghost:hover{background:var(--brand-soft)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:13px;font-weight:600;color:var(--text-2)}
+.field input,.field select{padding:10px 12px;border:1px solid var(--line-2);border-radius:8px;background:#fff}
+.field input:focus,.field select:focus{outline:2px solid var(--s1);border-color:transparent}
+.inline{display:flex;gap:12px;flex-wrap:wrap}
+.inline .field{flex:1;min-width:160px}
+input[type=range]{accent-color:var(--s1);padding:0;border:0}
+.meter{height:12px;background:#e5ecec;border-radius:99px;overflow:hidden;position:relative}
+.meter div{height:100%;border-radius:99px;transition:width .3s}
+.meter-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
+
+.result{border-radius:12px;padding:20px;border:1px solid var(--line-2);background:#fff}
+.result-head{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
+.result-ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
+.result-ic svg{width:24px;height:24px}
+.result.r-crit{border-left:5px solid var(--crit)} .result.r-crit .result-ic{background:var(--crit-bg);color:var(--crit)}
+.result.r-good{border-left:5px solid var(--good)} .result.r-good .result-ic{background:var(--good-bg);color:var(--good)}
+.result.r-info{border-left:5px solid var(--s1)} .result.r-info .result-ic{background:var(--brand-soft);color:var(--brand-2)}
+.result.r-warn{border-left:5px solid var(--warn)} .result.r-warn .result-ic{background:var(--warn-bg);color:var(--warn-ink)}
+.result h2{font-size:20px;margin:0}
+.result .tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2)}
+.result p{margin:8px 0;color:var(--text-2)}
+.result ol,.result ul{margin:8px 0 0 20px;color:var(--text)}
+.result li{margin:5px 0}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+.fact{background:#f5f8f8;border-radius:8px;padding:10px 12px}
+.fact span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.fact b{display:block;font-size:17px;margin-top:2px}
+.answers{font-size:12px;color:var(--text-2);margin-top:14px;border-top:1px dashed var(--line-2);padding-top:10px}
+
+/* registry */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar input,.toolbar select{padding:8px 10px;border:1px solid var(--line-2);border-radius:8px;background:#fff}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.fchip{border:1px solid var(--line-2);background:#fff;border-radius:999px;padding:4px 11px;font-size:12px;color:var(--text-2)}
+.fchip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.fchip em{font-style:normal;opacity:.7;margin-left:4px}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.badge i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.badge.vol{background:#e3f4f6;color:#05606b} .badge.vol i{background:var(--s1)}
+.badge.man{background:#fdeee7;color:#9a3b14} .badge.man i{background:var(--s2)}
+.badge.new{background:var(--good-bg);color:var(--good-ink)}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:var(--brand-2)}
+.count-note{font-size:12px;color:var(--muted)}
+#regTable{min-width:960px}
+#regTable td{vertical-align:middle}
+#regTable th.num{white-space:nowrap}
+.tm{font-weight:700;font-size:12.5px;letter-spacing:.03em;white-space:nowrap}
+.act{color:var(--text-2);font-size:13px;line-height:1.4}
+tr.chg td{animation:chg 3.5s ease-out}
+@keyframes chg{0%,35%{background:#fff4dc}100%{background:transparent}}
+
+/* Excel sync */
+.sync{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#f5f8f8;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.sync-dot{width:10px;height:10px;border-radius:50%;background:#9aa8ab;flex-shrink:0}
+.sync[data-s=live] .sync-dot,.sync[data-s=server] .sync-dot{background:var(--good);animation:pulse 2s infinite}
+.sync[data-s=cached] .sync-dot{background:var(--warn)}
+.sync[data-s=once] .sync-dot{background:var(--s1)}
+.sync[data-s=error] .sync-dot{background:var(--crit)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(12,163,12,.45)}70%{box-shadow:0 0 0 7px rgba(12,163,12,0)}100%{box-shadow:0 0 0 0 rgba(12,163,12,0)}}
+.sync-txt{flex:1;min-width:240px}
+.sync-txt b{display:block;font-size:13px}
+.sync-txt small{display:block;color:var(--text-2);font-size:12px}
+.sync .btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:7px 12px;font-size:13px}
+.toast{position:fixed;right:20px;bottom:20px;background:#18262b;color:#fff;border-radius:10px;padding:12px 16px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:200;transform:translateY(16px);opacity:0;transition:transform .25s,opacity .25s;pointer-events:none;max-width:380px}
+.toast.show{transform:none;opacity:1}
+.toast b{display:block}
+.drop{position:fixed;inset:0;background:rgba(18,128,138,.12);border:3px dashed var(--brand);z-index:150;display:none;place-items:center;font-size:18px;font-weight:600;color:var(--brand-2);pointer-events:none}
+.drop.on{display:grid}
+@media (prefers-reduced-motion:reduce){.sync-dot{animation:none!important}tr.chg td{animation:none}}
+
+/* İdarəetmə rejimi — ziyarətçilərə görünmür */
+html:not(.is-admin) .admin-only{display:none!important}
+.admin-panel{position:fixed;left:270px;bottom:20px;width:min(470px,calc(100vw - 290px));background:#fff;border:1px solid var(--line-2);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);z-index:180;overflow:hidden}
+.admin-head{display:flex;align-items:center;gap:8px;background:#18262b;color:#fff;padding:8px 10px 8px 14px;font-size:12px}
+.admin-head .fdot{margin:0}
+.admin-head small{color:rgba(255,255,255,.6);flex:1}
+.admin-head button{background:none;border:1px solid transparent;color:#fff;font-size:12px;font-weight:600;line-height:1;padding:5px 8px;border-radius:5px}
+.admin-head button:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25)}
+#adminMin{font-size:15px;width:28px;padding:3px 0}
+.admin-panel .sync{margin:0;border:0;border-radius:0;background:#fff;padding:12px 14px}
+.admin-note{font-size:11.5px;color:var(--text-2);padding:0 14px 12px;line-height:1.45}
+.admin-src{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;margin-bottom:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#f7faf9;font-size:12px;color:var(--text-2);line-height:1.45}
+.admin-src b{display:block;color:var(--text);font-size:13px}
+.admin-src .fdot{margin:5px 0 0;flex-shrink:0}
+.admin-src .fdot[data-s=live]{background:var(--good)}
+.admin-panel.min .admin-body{display:none}
+@media (max-width:900px){.admin-panel{left:12px;right:12px;width:auto;bottom:12px}}
+
+/* calculator */
+.decl{border:1px solid var(--line-2);border-radius:10px;overflow:hidden}
+.decl-head{background:var(--brand);color:#fff;padding:10px 14px;font-weight:600;display:flex;justify-content:space-between;font-size:13px}
+.decl-row{display:flex;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line);font-size:14px}
+.decl-row:last-child{border-bottom:0}
+.decl-row b{font-variant-numeric:tabular-nums}
+.big-num{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* calendar */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-head button{border:1px solid var(--line-2);background:#fff;border-radius:8px;width:34px;height:34px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .dow{font-size:11px;color:var(--muted);text-align:center;font-weight:600;padding:4px 0}
+.cal .day{min-height:64px;border-radius:8px;background:#f6f9f9;padding:5px 6px;font-size:12px;position:relative}
+.cal .day.out{background:transparent}
+.cal .day.today{outline:2px solid var(--brand)}
+.cal .day .n{font-weight:600}
+.cal .ev{display:block;font-size:10.5px;font-weight:600;border-radius:4px;padding:2px 4px;margin-top:4px;line-height:1.25}
+.cal .ev.d{background:#e3f4f6;color:#05606b}
+.cal .ev.p{background:#fdeee7;color:#9a3b14}
+.upcoming{list-style:none}
+.upcoming li{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.upcoming .dd{width:52px;text-align:center;border-radius:8px;padding:5px 0;flex-shrink:0}
+.upcoming .dd b{display:block;font-size:18px;line-height:1.1}
+.upcoming .dd span{font-size:10.5px;text-transform:uppercase}
+.upcoming .dd.d{background:#e3f4f6;color:#05606b}
+.upcoming .dd.p{background:#fdeee7;color:#9a3b14}
+.upcoming .left{margin-left:auto;font-size:12px;color:var(--text-2);white-space:nowrap}
+
+/* process */
+.steps{display:grid;grid-template-columns:repeat(var(--n,6),minmax(0,1fr));gap:0;position:relative;margin:8px 0 18px}
+.step{background:none;border:0;text-align:center;padding:0 6px;position:relative}
+.step::before{content:"";position:absolute;top:21px;left:-50%;width:100%;height:3px;background:var(--line-2);z-index:0}
+.step:first-child::before{display:none}
+.step.done::before,.step.on::before{background:var(--s1)}
+.step .dot{width:44px;height:44px;border-radius:50%;background:#fff;border:3px solid var(--line-2);display:grid;place-items:center;margin:0 auto 8px;font-weight:700;position:relative;z-index:1;color:var(--text-2)}
+.step.done .dot{border-color:var(--s1);color:var(--brand-2)}
+.step.on .dot{background:var(--s1);border-color:var(--s1);color:#fff;box-shadow:0 0 0 5px rgba(0,146,163,.18)}
+.step .lbl{font-size:12.5px;font-weight:600;color:var(--text)}
+.step .when{font-size:11px;color:var(--muted)}
+.step-detail h3{font-size:18px;margin-bottom:6px}
+.step-detail ul{margin:8px 0 0 18px}
+.step-detail li{margin:4px 0}
+.check{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.check input{margin-top:3px;accent-color:var(--s1);width:16px;height:16px;flex-shrink:0}
+.check small{display:block;color:var(--muted);font-size:12px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+/* FAQ */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.acc{border:1px solid var(--line-2);border-radius:10px;background:#fff;margin-bottom:8px;overflow:hidden}
+.acc summary{list-style:none;cursor:pointer;padding:13px 16px;font-weight:600;display:flex;gap:12px;align-items:center}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary .num{font-size:11px;font-weight:700;color:var(--brand-2);background:var(--brand-soft);border-radius:5px;padding:2px 6px;flex-shrink:0}
+.acc summary::after{content:"";margin-left:auto;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;flex-shrink:0}
+.acc[open] summary::after{transform:rotate(-135deg)}
+.acc[open] summary{background:#f4f9f9}
+.acc .a{padding:4px 16px 14px 16px;color:var(--text-2)}
+.acc .a ul{margin:6px 0 0 18px}
+.step-detail ul{margin:8px 0 0 18px}
+mark{background:#ffe9a8;color:inherit;border-radius:2px}
+
+/* legal */
+.doc{display:flex;gap:14px;align-items:flex-start}
+.doc .ic{width:42px;height:42px;border-radius:10px;background:var(--brand-soft);color:var(--brand-2);display:grid;place-items:center;flex-shrink:0}
+.doc .ic svg{width:22px;height:22px}
+.doc h3{font-size:15px}
+.doc p{font-size:13px;color:var(--text-2);margin-top:3px}
+.doc a{font-size:13px;font-weight:600;display:inline-block;margin-top:6px}
+
+
+/* responsive */
+@media (max-width:1200px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){
+  .side{position:fixed;left:-260px;transition:left .25s;box-shadow:4px 0 20px rgba(0,0,0,.2)}
+  .side.open{left:0}
+  .burger{display:grid;place-items:center}
+  .main{padding:16px}
+  .g2,.g3{grid-template-columns:1fr}.span2{grid-column:auto}
+  .opts{grid-template-columns:1fr}
+  .facts{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:16px}
+  .step:nth-child(4)::before{display:none}
+  .search{width:100%}
+}
+@media (max-width:560px){.g4{grid-template-columns:1fr}.facts{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#12808a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 16l8-8"/><circle cx="8.5" cy="8.5" r="1.5"/><circle cx="15.5" cy="15.5" r="1.5"/></svg>
+      </div>
+      <div class="brand-text">Rəqəmsal iqtisadiyyat<br>üzrə vergitutma<br>interaktiv naviqator</div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">Məlumat mənbəyi: <b id="footMenbe">taxes.gov.az</b><div class="admin-only">Məlumatlar: <i class="fdot" id="footDot"></i><b id="footSrc">daxili</b><button class="side-btn" id="xlLink2">Excel faylını qoş</button></div></div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <button class="burger" id="burger" aria-label="Menyu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <div class="page-title"><span id="pTitle">Ana səhifə</span><div class="page-sub" id="pSub"></div></div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="gsearch" type="search" placeholder="Axtar: şirkət, sual, termin (məs. MCC)…" autocomplete="off" aria-label="Axtarış">
+        <div class="search-res" id="gres"></div>
+      </div>
+      <div class="datechip" id="todayChip"></div>
+    </div>
+
+    <!-- ================= HOME ================= -->
+    <section class="page" id="p-home">
+      <div class="grid g4" id="kpis"></div>
+
+      <div class="ticker" aria-label="Son uçota alınanlar">
+        <div class="ticker-label">Son uçota alınanlar</div>
+        <div class="ticker-track"><div class="ticker-inner" id="ticker"></div></div>
+      </div>
+
+      <div class="grid g3 mt16">
+        <div class="card span2" id="c-trend">
+          <div class="chart-head">
+            <div><h3 id="trendTitle">Uçota alınmış qeyri-rezidentlər</h3><div class="sub" id="trendSub">Kumulyativ say, aylar üzrə</div></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+              <div class="seg" id="trendMode"><button data-m="line" class="on">xətti</button><button data-m="bar">sütun</button></div>
+              <div class="seg"><button data-tbl="c-trend">Cədvəl</button></div>
+            </div>
+          </div>
+          <div class="chart" id="trendChart"></div>
+          <div class="legend" id="trendLegend"></div>
+          <div class="tbl-wrap" id="trendTable"></div>
+        </div>
+        <div class="card" id="c-split">
+          <div class="chart-head"><div><h3>Uçot rejimi üzrə bölgü</h3><div class="sub">Qeydiyyat tarixinə görə</div></div></div>
+          <div class="split" id="splitBar"></div>
+          <div class="split-legend" id="splitLegend"></div>
+          <p class="sub" id="splitNote" style="margin-top:14px;line-height:1.5"></p>
+        </div>
+      </div>
+
+      <div class="grid g2 mt16">
+        <div class="card" id="c-country">
+          <div class="chart-head">
+            <div><h3>Ölkələr üzrə bölgü</h3><div class="sub">Şirkətin qeydiyyat ölkəsi · sütuna klikləyin → reyestr</div></div>
+            <div class="seg"><button data-tbl="c-country">Cədvəl</button></div>
+          </div>
+          <div class="chart" id="countryChart"></div>
+          <div class="tbl-wrap" id="countryTable"></div>
+        </div>
+        <div class="card">
+          <div class="chart-head"><div><h3>Sürətli keçidlər</h3><div class="sub">Ən çox axtarılan suallar</div></div></div>
+          <div class="opts" id="quick" style="grid-template-columns:1fr 1fr"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= WIZARD ================= -->
+    <section class="page" id="p-wizard">
+      <div class="card wiz" id="wiz"></div>
+    </section>
+
+    <!-- ================= REGISTRY ================= -->
+    <section class="page" id="p-registry">
+      <div class="card">
+        <div class="toolbar">
+          <input id="regQ" type="search" placeholder="Ad, trademark və ya fəaliyyət istiqaməti ilə axtar…" style="flex:1;min-width:200px" aria-label="Şirkət adı, trademark və ya fəaliyyət">
+          <select id="regPeriod" aria-label="Uçot rejimi">
+            <option value="all">Bütün dövrlər</option>
+            <option value="vol" id="optVol">Könüllü dövr</option>
+            <option value="man" id="optMan">Məcburi dövr</option>
+          </select>
+        </div>
+        <div class="chips" id="regChips"></div>
+        <div class="count-note" id="regCount" style="margin-bottom:8px"></div>
+        <div style="overflow:auto">
+          <table class="dt" id="regTable">
+            <thead><tr>
+              <th class="sortable num" data-k="n">№</th>
+              <th class="sortable" data-k="name">Hüquqi şəxsin adı</th>
+              <th class="sortable" data-k="tm">Trademark (əmtəə nişanı)</th>
+              <th class="sortable" data-k="act">Fəaliyyət istiqaməti</th>
+              <th class="sortable" data-k="country">Ölkə</th>
+              <th class="sortable" data-k="date">Qeydiyyat tarixi</th>
+              <th>Rejim</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CALCULATOR ================= -->
+    <section class="page" id="p-calc">
+      <div class="grid g2">
+        <div class="card">
+          <h3>Aylıq ƏDV hesablaması</h3>
+          <div class="sub" style="margin-bottom:14px">Azərbaycandakı fiziki şəxslərə (B2C) göstərilmiş rəqəmsal xidmətlər üzrə</div>
+          <div class="inline">
+            <div class="field"><label for="cMonth">Hesabat dövrü (ay)</label><select id="cMonth"></select></div>
+            <div class="field"><label for="cCur">Ödəniş valyutası</label>
+              <select id="cCur"><option>USD</option></select></div>
+          </div>
+          <div class="field"><label for="cAmt">Ümumi dövriyyə</label><input id="cAmt" type="number" min="0" step="100" value="25000"></div>
+          <div class="field"><label>Məbləğ necə daxil edilib?</label>
+            <div class="seg" id="cMode" style="align-self:flex-start"><button data-m="excl" class="on" id="cModeExcl">ƏDV-siz</button><button data-m="incl" id="cModeIncl">ƏDV daxil</button></div>
+          </div>
+          <p class="sub" id="cNote"></p>
+        </div>
+        <div class="card">
+          <h3>Nəticə</h3>
+          <div class="sub" style="margin-bottom:12px">Bəyannamə yalnız iki göstəricidən ibarətdir — sadələşdirilmiş görünüş</div>
+          <div class="decl">
+            <div class="decl-head"><span>ƏDV bəyannaməsi (nümunə görünüş)</span><span id="dPeriod"></span></div>
+            <div class="decl-row"><span>Ümumi dövriyyə (ƏDV-siz)</span><b id="dBase"></b></div>
+            <div class="decl-row"><span id="dVatL">Hesablanmış ƏDV</span><b id="dVat"></b></div>
+            <div class="decl-row"><span>Alıcıdan alınan cəmi məbləğ</span><b id="dTot"></b></div>
+          </div>
+          <div class="facts">
+            <div class="fact"><span>Bəyannamə</span><b id="dDecl"></b><small class="sub" id="dDeclL"></small></div>
+            <div class="fact"><span>Ödəniş</span><b id="dPay"></b><small class="sub" id="dPayL"></small></div>
+            <div class="fact"><span>Ödəniləcək ƏDV</span><b id="dVat2"></b></div>
+          </div>
+        </div>
+      </div>
+      <div class="card mt16">
+        <h3>Dövriyyə həddi izləyicisi</h3>
+        <div class="sub" id="tSub" style="margin-bottom:14px"></div>
+        <div class="inline">
+          <div class="field" style="flex:2"><label for="tRange">İlin əvvəlindən dövriyyə (USD)</label><input id="tRange" type="range" min="0" max="20000" step="250" value="0"></div>
+          <div class="field"><label for="tNum">Məbləğ, USD</label><input id="tNum" type="number" min="0" step="250" value="0"></div>
+        </div>
+        <div class="meter"><div id="tBar"></div></div>
+        <div class="meter-labels"><span>0 $</span><span id="tMid"></span><span id="tMax"></span></div>
+        <p id="tMsg" style="margin-top:12px"></p>
+      </div>
+    </section>
+
+    <!-- ================= CALENDAR ================= -->
+    <section class="page" id="p-cal">
+      <div class="grid g3">
+        <div class="card span2">
+          <div class="cal-head">
+            <button id="calPrev" aria-label="Əvvəlki ay">‹</button>
+            <h3 id="calTitle" style="font-size:18px"></h3>
+            <button id="calNext" aria-label="Növbəti ay">›</button>
+          </div>
+          <div class="cal" id="calGrid"></div>
+          <div class="legend" style="margin-top:12px"><span><i style="background:#e3f4f6;border:1px solid var(--s1)"></i><span id="calLegD">Bəyannamə son tarixi</span></span><span><i style="background:#fdeee7;border:1px solid var(--s2)"></i>ƏDV ödənişi son tarixi (ayın son günü)</span></div>
+        </div>
+        <div class="card">
+          <h3>Yaxınlaşan son tarixlər</h3>
+          <div class="sub" style="margin-bottom:6px">Aylıq hesabat dövrü üzrə</div>
+          <ul class="upcoming" id="upcoming"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PROCESS ================= -->
+    <section class="page" id="p-process">
+      <div class="card">
+        <div class="steps" id="steps"></div>
+        <div class="step-detail" id="stepDetail"></div>
+      </div>
+      <div class="grid g2 mt16">
+        <div class="card">
+          <h3>Qeydiyyata hazırlıq siyahısı</h3>
+          <div class="sub" style="margin-bottom:8px">Hazır olanları işarələyin</div>
+          <div class="meter" style="margin:8px 0 2px"><div id="ckBar" style="background:var(--s1)"></div></div>
+          <div class="meter-labels"><span id="ckTxt"></span><span></span></div>
+          <div id="checklist"></div>
+        </div>
+        <div class="card">
+          <h3>Bank məlumatları — izahlı lüğət</h3>
+          <div class="sub" id="bankTitleSub" style="margin-bottom:10px"></div>
+          <table class="dt" id="bankTbl"></table>
+          <div class="field" style="margin-top:16px"><label for="mid">Merchant ID yoxlaması (15 rəqəm)</label><input id="mid" class="mono" placeholder="məs. 123456789012345" inputmode="numeric"></div>
+          <div id="midMsg" class="sub"></div>
+          <div class="field" style="margin-top:6px"><label for="mcc">MCC yoxlaması (4 rəqəm)</label><input id="mcc" class="mono" placeholder="məs. 5815" inputmode="numeric"></div>
+          <div id="mccMsg" class="sub"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section class="page" id="p-faq">
+      <div class="toolbar">
+        <input id="faqQ" type="search" placeholder="Suallarda axtar…" style="flex:1;min-width:220px" aria-label="Suallarda axtar">
+      </div>
+      <div class="tabs" id="faqTabs"></div>
+      <div id="faqList"></div>
+    </section>
+
+    <!-- ================= LEGAL ================= -->
+    <section class="page" id="p-legal">
+      <div class="grid g2" id="legal"></div>
+    </section>
+
+  </main>
+</div>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast" role="status"></div>
+<div class="drop" id="drop">Excel faylını buraxın — reyestr yenilənəcək</div>
+
+<!-- İdarəetmə paneli: ziyarətçilərə görünmür (bax: İDARƏETMƏ REJİMİ, skriptin əvvəli) -->
+<div class="admin-panel admin-only" id="adminPanel" role="region" aria-label="İdarəetmə paneli">
+  <div class="admin-head">
+    <i class="fdot" id="adminDot"></i><b>İdarəetmə rejimi</b><small>yalnız sizə görünür</small>
+    <button id="adminMin" title="Paneli kiçilt" aria-label="Paneli kiçilt">–</button>
+    <button id="adminExit" title="İdarəetmə rejimindən çıx — sayt ziyarətçi kimi görünəcək">Çıx</button>
+  </div>
+  <div class="admin-body">
+    <div class="sync" id="sync" data-s="embedded" aria-live="polite">
+      <span class="sync-dot" aria-hidden="true"></span>
+      <div class="sync-txt"><b id="syncTitle">Mənbə: HTML-ə daxil edilmiş məlumat</b><small id="syncSub"></small></div>
+      <div class="btns">
+        <button class="btn sm" id="xlLink">Excel faylını qoş</button>
+        <button class="btn ghost sm" id="xlUnlink" hidden>Əlaqəni kəs</button>
+        <button class="btn ghost sm" id="xlExport" title="Hazırkı məlumatı HTML faylının içinə yazıb yükləyir">HTML-i yüklə</button>
+      </div>
+      <input type="file" id="xlFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+    </div>
+    <div class="admin-src" id="offStatus"></div>
+    <div class="admin-note">Reyestr, sual-cavab və əsas rəqəmlər taxes.gov.az-dan avtomatik gəlir və hər şeydən üstündür. Excel-dən yalnız trademark, fəaliyyət istiqaməti və saytın digər bölmələri götürülür. Burada qoşduğunuz Excel yalnız <b>sizin</b> ekranınızı dəyişir; ziyarətçilər üçün Excel faylı serverdə HTML-in yanında (<b>qeyri-rezidentler-reyestri.xlsx</b>) olmalıdır.</div>
+  </div>
+</div>
+
+<script type="application/json" id="site-data">
+{
+"reg": [
+[
+1,
+"Apple Distribution International Limited",
+"APPLE",
+"Proqram təminatı, mobil tətbiqlər və rəqəmsal kontent",
+"İrlandiya",
+"2024-12-01"
+],
+[
+2,
+"Adobe Systems Software Ireland Limited",
+"ADOBE",
+"Proqram təminatı və bulud xidmətləri",
+"İrlandiya",
+"2025-03-01"
+],
+[
+3,
+"Sony Interactive Entertainment Network Europe Limited",
+"PLAYSTATION",
+"Virtual oyunlar və oyun əlavələri",
+"Birləşmiş Krallıq",
+"2025-04-01"
+],
+[
+4,
+"Elsevier BV",
+"ELSEVIER",
+"Elektron kitablar və elmi nəşrlər",
+"Niderland",
+"2025-07-01"
+],
+[
+5,
+"Hyperconnect LLC",
+"AZAR",
+"Videoçat və rəqəmsal kommunikasiya",
+"Cənubi Koreya",
+"2025-07-01"
+],
+[
+6,
+"Tinder LLC",
+"TINDER",
+"Onlayn tanışlıq və rəqəmsal abunəliklər",
+"ABŞ",
+"2025-07-01"
+],
+[
+7,
+"PPG DIGITAL SP. Z O.O.",
+"PPG DIGITAL",
+"Rəqəmsal məhsullar və proqram təminatı",
+"Polşa",
+"2025-10-01"
+],
+[
+8,
+"Epic Games Commerce GmbH",
+"EPIC GAMES",
+"Virtual oyunlar və oyun əlavələri",
+"İsveçrə",
+"2026-03-01"
+],
+[
+9,
+"Contabo GmbH",
+"CONTABO",
+"Bulud, VPS və hostinq xidmətləri",
+"Almaniya",
+"2026-03-01"
+],
+[
+10,
+"Chess.com LLC",
+"CHESS.COM",
+"Virtual oyunlar və onlayn şahmat",
+"ABŞ",
+"2026-05-01"
+],
+[
+11,
+"Xsolla (USA), Inc.",
+"XSOLLA",
+"Oyunlarla əlaqəli rəqəmsal məhsullar",
+"ABŞ",
+"2026-07-01"
+],
+[
+12,
+"Formula One Digital Media Limited",
+"FORMULA 1 (F1)",
+"Audio-video materiallar və rəqəmsal yayım",
+"Birləşmiş Krallıq",
+"2026-08-01"
+],
+[
+13,
+"Valve Corporation",
+"STEAM",
+"Virtual oyunlar və proqram təminatı",
+"ABŞ",
+"2026-09-01"
+],
+[
+14,
+"Cleverbridge GmbH",
+"CLEVERBRIDGE",
+"Proqram təminatının elektron satışı",
+"Almaniya",
+"2026-09-01"
+],
+[
+15,
+"Aghanim Inc",
+"AGHANIM",
+"Oyun platformaları və rəqəmsal oyun xidmətləri",
+"ABŞ",
+"2026-09-01"
+],
+[
+16,
+"Netflix International B.V.",
+"NETFLIX",
+"Film, serial və audio-video kontent",
+"Niderland",
+"2026-09-01"
+],
+[
+17,
+"ANTHROPIC, PBC",
+"ANTHROPIC / CLAUDE",
+"Süni intellekt və AI xidmətləri",
+"ABŞ",
+"2026-09-01"
+],
+[
+18,
+"EBAY MARKETPLACES GMBH",
+"EBAY",
+"Elektron ticarət və rəqəmsal platforma",
+"İsveçrə",
+"2026-09-01"
+],
+[
+19,
+"Zoho Corporation B.V.",
+"ZOHO",
+"SaaS və bulud əsaslı proqram təminatı",
+"Niderland",
+"2026-09-01"
+],
+[
+20,
+"Zoom Communications, Inc.",
+"ZOOM",
+"Video və audio kommunikasiya",
+"ABŞ",
+"2026-09-01"
+],
+[
+21,
+"OpenAI OpCo, LLC",
+"OPENAI / CHATGPT",
+"Süni intellekt, generativ AI və API xidmətləri",
+"ABŞ",
+"2026-09-01"
+],
+[
+22,
+"Spotify AB",
+"SPOTIFY",
+"Musiqi və audio materialların təqdim edilməsi",
+"İsveç",
+"2026-10-01"
+],
+[
+23,
+"TikTok Pte. Ltd.",
+"TIKTOK",
+"Audio-video kontent və rəqəmsal platforma",
+"Sinqapur",
+"2026-10-01"
+],
+[
+24,
+"Appcharge Ltd.",
+"APPCHARGE",
+"Oyunlarla əlaqəli rəqəmsal məhsullar və ödəniş xidmətləri",
+"İsrail",
+"2026-11-01"
+]
+],
+"params": [
+[
+"EDV_DERECESI",
+"ƏDV dərəcəsi",
+0.18,
+"Kalkulyator, göstəricilər və mətnlər bu dəyərdən istifadə edir"
+],
+[
+"DOVRIYYE_HEDDI",
+"Uçot həddi — təqvim ili ərzində B2C dövriyyə, ABŞ dolları",
+10000,
+"Bu həddi keçən qeyri-rezident uçota alınmalıdır"
+],
+[
+"USD_AZN",
+"USD/AZN məzənnəsi",
+1.7,
+"Həddin manat ekvivalenti üçün (1 USD = ? AZN)"
+],
+[
+"MECBURI_TARIX",
+"Məcburi uçotun başlama tarixi",
+"2026-09-01",
+"Bu tarixdən əvvəlki qeydiyyatlar “Könüllü dövr” sayılır"
+],
+[
+"UCOT_MUDDETI",
+"Uçota alınma müddəti, gün",
+30,
+"Hədd aşıldıqdan sonra"
+],
+[
+"YOXLAMA_MUDDETI",
+"Sənədlərin yoxlanılması, iş günü",
+20,
+"Vergi orqanının yoxlama müddəti"
+],
+[
+"BEYANNAME_GUNU",
+"Bəyannamənin son günü (növbəti ayın)",
+20,
+"1–28 arası rəqəm. ƏDV ödənişi — növbəti ayın son günü"
+],
+[
+"VALYUTALAR",
+"Ödəniş valyutaları",
+"AZN, USD, EUR, GBP",
+"Vergüllə ayırın — kalkulyatordakı siyahı da buradan qurulur"
+],
+[
+"EPOCT",
+"Əlaqə e-poçtu",
+"ecommerce@taxes.gov.az",
+""
+],
+[
+"PLATFORMA",
+"Uçot platforması",
+"https://ecommerce.e-taxes.gov.az",
+""
+],
+[
+"ODENIS_TELIMATI",
+"ƏDV ödənişi üzrə təlimat (PDF)",
+"https://www.taxes.gov.az/uploads/2026/beynelxalq/STS%20Payment%20instructions%20for%20VAT%20Azerbaijan.pdf",
+""
+],
+[
+"MENBE",
+"Məlumat mənbəyi",
+"taxes.gov.az",
+"Menyunun altında göstərilir"
+],
+[
+"MENBE_LINK",
+"Mənbə səhifəsi",
+"https://www.taxes.gov.az/az/page/reqemsal-iqtisadiyyat-uzre-vergitutma",
+""
+],
+[
+"MELUMAT_TARIXI",
+"Məlumat tarixi",
+"2026-11-03",
+"Menyunun altında göstərilir"
+]
+],
+"pages": [
+[
+"home",
+"Ana səhifə",
+"Ana səhifə",
+"Rəqəmsal xidmətlər üzrə ƏDV — əsas göstəricilər"
+],
+[
+"wizard",
+"Öhdəlik yoxlayıcısı",
+"Öhdəlik yoxlayıcısı",
+"5 sualla uçot öhdəliyinizi müəyyən edin"
+],
+[
+"registry",
+"Qeyri-rezidentlər reyestri",
+"Qeyri-rezidentlərin ƏDV uçotu üzrə yekun siyahısı",
+"Elektron qaydada uçota alınmış rəqəmsal xidmət təchizatçıları"
+],
+[
+"calc",
+"ƏDV kalkulyatoru",
+"ƏDV kalkulyatoru",
+"Aylıq ƏDV, son tarixlər və dövriyyə həddi"
+],
+[
+"cal",
+"Vergi təqvimi",
+"Vergi təqvimi",
+"Bəyannamə və ödəniş son tarixləri"
+],
+[
+"process",
+"Uçot prosesi",
+"Uçot prosesi",
+"Həddin aşılmasından ilk ödənişə qədər"
+],
+[
+"faq",
+"Sual-cavab",
+"Sual-cavab",
+"Tez-tez verilən suallar — axtarış və filtr"
+],
+[
+"legal",
+"Hüquqi baza və əlaqə",
+"Hüquqi baza və əlaqə",
+"Normativ sənədlər, platforma və təlimatlar"
+]
+],
+"faq": [
+[
+"I. Rəqəmsal xidmətlər üzrə ƏDV",
+"Hansı xidmətlər rəqəmsal xidmət sayılır?",
+"İnternet üzərindən avtomatlaşdırılmış qaydada və minimal insan iştirakı ilə göstərilən xidmətlər. Məsələn:\n- e-kitablar, musiqi, audio və video materiallar\n- qrafik təsvirlər, virtual oyunlar, proqram təminatı\n- onlayn reklamın yerləşdirilməsi, yayımı və idarə olunması\n- rəqəmsal mühitdə göstərilən digər oxşar elektron xidmətlər"
+],
+[
+"I. Rəqəmsal xidmətlər üzrə ƏDV",
+"Bu xidmətlər kimə göstərilir?",
+"Azərbaycanda vergi orqanlarında uçotda olmayan şəxslərə, yəni son istehlakçılara (B2C)."
+],
+[
+"I. Rəqəmsal xidmətlər üzrə ƏDV",
+"Qaydalar B2B əməliyyatlarına da şamil olunurmu?",
+"Xeyr, yalnız B2C əməliyyatlarına. B2B əməliyyatlarında ƏDV-ni yerli alıcı əks ödəniş (reverse charge) mexanizmi ilə ödəyir. Əməliyyatın B2B olduğunu alıcının vergi nömrəsi və ya digər biznes identifikatoru ilə müəyyən etmək olar."
+],
+[
+"I. Rəqəmsal xidmətlər üzrə ƏDV",
+"Hansı xidmətlər rəqəmsal xidmət sayılmır?",
+"- e-poçt və digər interaktiv vasitələrlə göstərilən məsləhət, hüquq, maliyyə-mühasibat, dizayn və mühəndis xidmətləri\n- real vaxt rejimində keçirilən onlayn tədris və təlimlər\n- elm, təhsil, mədəniyyət, idman və əyləncə tədbirlərinə biletlərin onlayn sifarişi"
+],
+[
+"I. Rəqəmsal xidmətlər üzrə ƏDV",
+"Dövriyyə həddi nə qədərdir?",
+"Azərbaycandakı fiziki şəxslərə göstərilən rəqəmsal xidmətlər üzrə təqvim ili ərzində dövriyyə **{DOVRIYYE_HEDDI} ABŞ dollarının manat ekvivalentini** keçərsə, uçot məcburidir. Hədd yalnız B2C əməliyyatlara aiddir; həddə çatmayanlar könüllü qeydiyyatdan keçə bilər."
+],
+[
+"I. Rəqəmsal xidmətlər üzrə ƏDV",
+"Məcburi qeydiyyat nə vaxtdan tətbiq olunur?",
+"**{MECBURI_TARIX_SOZLE}** tarixindən. Həmin tarixədək qeydiyyat könüllü idi."
+],
+[
+"I. Rəqəmsal xidmətlər üzrə ƏDV",
+"Alıcının Azərbaycanda yerləşməsi necə müəyyən edilir?",
+"Dörd göstərici əsasında:\n- ödəniş Azərbaycan bankı və ya ödəniş xidməti təminatçısı vasitəsilə edilib\n- IP ünvanı Azərbaycana aiddir\n- mobil nömrə +994 kodludur\n- yaşayış və ya qeydiyyat ünvanı Azərbaycandadır"
+],
+[
+"I. Rəqəmsal xidmətlər üzrə ƏDV",
+"Uçota alınmaq üçün nə qədər vaxt var?",
+"Dövriyyə həddi keçildikdən sonra **{UCOT_MUDDETI} gün** ərzində, elektron qaydada. Tələb {MECBURI_TARIX_SOZLE} tarixindən tətbiq olunur."
+],
+[
+"I. Rəqəmsal xidmətlər üzrə ƏDV",
+"Qayda kimlərə şamil edilmir?",
+"Azərbaycanda daimi nümayəndəlik vasitəsilə fəaliyyət göstərən qeyri-rezidentlərə."
+],
+[
+"II. ƏDV portalı və qeydiyyat",
+"Qeyri-rezidentin uçotu necə aparılır?",
+"İnternet Vergi İdarəsindəki platforma ({PLATFORMA}) vasitəsilə elektron qaydada. Bəyannamələr də həmin platformada təqdim olunur."
+],
+[
+"II. ƏDV portalı və qeydiyyat",
+"Qeydiyyat üçün hansı sənədlər lazımdır?",
+"- qeydiyyat ölkəsindəki inkorporasiya və ya vergi uçotu sənədi\n- məsul şəxsin təyinatını təsdiqləyən sənəd (qərar, əmək müqaviləsi və s.)"
+],
+[
+"II. ƏDV portalı və qeydiyyat",
+"Qeydiyyat zamanı hansı məlumatlar təqdim olunur?",
+"Ad, rezidentlik ölkəsi, hüquqi və faktiki ünvan, rəsmi internet səhifəsi, e-poçt, qeydiyyat və vergi sənədlərinin nömrələri, əsas fəaliyyət sahəsi, ödəniş valyutası, fəaliyyətə başlama tarixi və ən azı 2 məsul şəxs barədə məlumat."
+],
+[
+"II. ƏDV portalı və qeydiyyat",
+"Qeydiyyat nə qədər çəkir?",
+"Vergi orqanı sənəd və məlumatları **{YOXLAMA_MUDDETI} iş günü** ərzində yoxlayır; kənarlaşma olmadıqda uçota alır."
+],
+[
+"II. ƏDV portalı və qeydiyyat",
+"Bank məlumatları nə üçün tələb olunur?",
+"ƏDV inzibatçılığının düzgün və effektiv aparılması, eləcə də uçotda olan qeyri-rezidentlər üçün ikiqat vergitutmanın qarşısının alınması üçün."
+],
+[
+"II. ƏDV portalı və qeydiyyat",
+"Hansı bank məlumatları təqdim olunmalıdır?",
+"Acquirer, MCC (4 rəqəmli fəaliyyət kodu), Scheme (kart şəbəkəsi), Merchant ID (15 rəqəm), Acquirer ID və Acquirer Country. Ətraflı izah [Uçot prosesi](#process) bölməsindədir."
+],
+[
+"II. ƏDV portalı və qeydiyyat",
+"Seçilmiş valyutanı sonradan dəyişmək olarmı?",
+"Xeyr. Qeydiyyat zamanı seçilən valyuta sonradan dəyişdirilmir."
+],
+[
+"II. ƏDV portalı və qeydiyyat",
+"Qeydiyyatdan hansı hallarda imtina edilə bilər?",
+"Qanunla qadağan olunmuş fəaliyyət, yanlış məlumat təqdimi və ya müəyyən edilmiş tələblərə uyğunsuzluq olduqda."
+],
+[
+"III. Bəyannamə və ödəniş",
+"ƏDV bəyannaməsi necə təqdim olunur?",
+"Platforma vasitəsilə elektron qaydada."
+],
+[
+"III. Bəyannamə və ödəniş",
+"Hesabat dövrü nə qədərdir?",
+"Bir ay."
+],
+[
+"III. Bəyannamə və ödəniş",
+"Bəyannamə nə vaxt təqdim edilməlidir?",
+"Hesabat dövründən sonrakı ayın **{BEYANNAME_GUNU_ORD} günündən** gec olmayaraq."
+],
+[
+"III. Bəyannamə və ödəniş",
+"ƏDV nə vaxt ödənilməlidir?",
+"Hesabat dövründən sonrakı ayın **son günündən** gec olmayaraq."
+],
+[
+"III. Bəyannamə və ödəniş",
+"Bəyannamə hansı formadadır?",
+"Sadələşdirilmiş formadadır: yalnız ümumi dövriyyə və hesablanmış ƏDV göstərilir."
+],
+[
+"III. Bəyannamə və ödəniş",
+"ƏDV dərəcəsi nə qədərdir?",
+"**{EDV_DERECESI}**."
+],
+[
+"III. Bəyannamə və ödəniş",
+"Ödəniş hansı valyutada edilir?",
+"Qeydiyyatda seçilmiş valyutada: {VALYUTALAR}."
+],
+[
+"III. Bəyannamə və ödəniş",
+"Qeyri-rezidentin əsas öhdəlikləri hansılardır?",
+"- bəyannaməni vaxtında təqdim etmək və vergini ödəmək\n- qeydiyyat məlumatlarındakı dəyişiklikləri 20 iş günü ərzində bildirmək\n- təqdim olunan məlumatların düzgünlüyünə cavabdeh olmaq"
+],
+[
+"III. Bəyannamə və ödəniş",
+"Səhv bəyannaməni düzəltmək mümkündürmü?",
+"Bəli, həmin dövr üzrə dəqiqləşdirilmiş bəyannamə təqdim etmək olar."
+],
+[
+"III. Bəyannamə və ödəniş",
+"ƏDV hansı hesaba ödənilir?",
+"Ödəniş rekvizitləri DVX-nin rəsmi saytında dərc olunur. Bax: [ödəniş təlimatı (PDF)]({ODENIS_TELIMATI})."
+],
+[
+"III. Bəyannamə və ödəniş",
+"Əlavə suallar üçün hara müraciət etmək olar?",
+"Platforma və qeydiyyatla bağlı suallar üçün: {EPOCT}."
+]
+],
+"steps": [
+[
+"Həddin aşılması",
+"Gün 0",
+"Təqvim ili ərzində Azərbaycandakı fiziki şəxslərə (B2C) göstərilən rəqəmsal xidmətlər üzrə dövriyyə {DOVRIYYE_HEDDI} ABŞ dollarının manat ekvivalentini keçir.",
+"B2B dövriyyə həddə daxil edilmir\nAlıcının yeri {YER_SAYI} göstərici ilə müəyyən edilir: bank/ödəniş təminatçısı, IP, +994, ünvan\nHəddə çatmayanlar könüllü qeydiyyatdan keçə bilər"
+],
+[
+"Müraciət",
+"{UCOT_MUDDETI} gün ərzində",
+"Qeyri-rezident İnternet Vergi İdarəsindəki platformada elektron qaydada uçota alınmaq üçün müraciət edir.",
+"Platforma: {PLATFORMA}\nTələb {MECBURI_TARIX_SOZLE} tarixindən məcburidir\nSuallar: {EPOCT}"
+],
+[
+"Sənəd və məlumatlar",
+"Müraciətlə birgə",
+"Sənədlər, şirkət məlumatları, ən azı 2 məsul şəxs və {BANK_SAYI} bank məlumatı təqdim olunur.",
+"İnkorporasiya və ya vergi uçotu sənədi\nMəsul şəxsin təyinatını təsdiqləyən sənəd\nÖdəniş valyutası: {VALYUTALAR} — sonradan dəyişdirilmir"
+],
+[
+"Yoxlama",
+"{YOXLAMA_MUDDETI} iş günü",
+"Vergi orqanı təqdim olunan məlumat və sənədləri yoxlayır; kənarlaşma yoxdursa, qeyri-rezident uçota alınır.",
+"İmtina halları: qadağan fəaliyyət, yanlış məlumat, tələblərə uyğunsuzluq\nUçotdan sonra şirkət reyestrdə dərc olunur"
+],
+[
+"Aylıq bəyannamə",
+"Növbəti ayın {BEYANNAME_GUNU_ORD} gününədək",
+"Hər hesabat ayı üzrə sadələşdirilmiş bəyannamə platformada təqdim olunur: ümumi dövriyyə və hesablanmış ƏDV.",
+"ƏDV dərəcəsi {EDV_DERECESI}\nSəhv aşkar edilərsə, dəqiqləşdirilmiş bəyannamə verilə bilər\nQeydiyyat məlumatlarındakı dəyişikliklər 20 iş günü ərzində bildirilir"
+],
+[
+"ƏDV ödənişi",
+"Növbəti ayın son gününədək",
+"Hesablanmış ƏDV qeydiyyatda seçilmiş valyutada büdcəyə ödənilir.",
+"[Ödəniş təlimatı (PDF)]({ODENIS_TELIMATI})\n[ƏDV kalkulyatoru](#calc) · [Vergi təqvimi](#cal)"
+]
+],
+"check": [
+[
+"Sənədlər",
+"İnkorporasiya və ya vergi uçotu sənədi",
+"Qeydiyyat ölkəsində verilmiş"
+],
+[
+"Sənədlər",
+"Məsul şəxsin təyinatı",
+"Qərar, əmək müqaviləsi və s."
+],
+[
+"Şirkət məlumatları",
+"Ad və rezidentlik ölkəsi",
+""
+],
+[
+"Şirkət məlumatları",
+"Hüquqi və faktiki ünvan",
+""
+],
+[
+"Şirkət məlumatları",
+"Rəsmi internet səhifəsi və e-poçt",
+""
+],
+[
+"Şirkət məlumatları",
+"Qeydiyyat / vergi sənədlərinin nömrələri",
+""
+],
+[
+"Şirkət məlumatları",
+"Əsas fəaliyyət sahəsi və başlama tarixi",
+""
+],
+[
+"Şirkət məlumatları",
+"Ödəniş valyutası",
+"Sonradan dəyişdirilmir"
+],
+[
+"Şirkət məlumatları",
+"Ən azı 2 məsul şəxs",
+""
+]
+],
+"bank": [
+[
+"Acquirer",
+"Ödənişi qəbul edən bank və ya ödəniş xidməti təminatçısının adı"
+],
+[
+"MCC",
+"Merchant Category Code — fəaliyyət növünü göstərən 4 rəqəmli kod"
+],
+[
+"Scheme",
+"Kart şəbəkəsi (məs. Visa, MasterCard)"
+],
+[
+"Merchant ID",
+"Ticarət subyektinin 15 rəqəmli unikal identifikatoru"
+],
+[
+"Acquirer ID",
+"Ödənişi qəbul edən qurumun identifikatoru"
+],
+[
+"Acquirer Country",
+"Acquirer-in qeydiyyatda olduğu ölkə"
+]
+],
+"legal": [
+[
+"doc",
+"Vergi Məcəlləsi — 33.8-1 və 169.8-ci maddələr",
+"Rəqəmsal xidmətlər üzrə vergitutmanın dəyərin yarandığı ölkədə aparılması məqsədilə əlavə edilmiş maddələr.",
+"https://www.taxes.gov.az/az/page/ar-vergi-mecellesi",
+"Vergi Məcəlləsi →"
+],
+[
+"doc",
+"Nazirlər Kabinetinin 30.10.2023-cü il tarixli 387 №-li qərarı",
+"İnternet vasitəsilə elektron ticarət edən qeyri-rezidentin elektron qaydada uçota alınması, yenidən uçota alınması və uçotdan çıxarılması Qaydası.",
+"https://www.taxes.gov.az/uploads/2024/Qayda1.pdf",
+"Qaydanı aç (PDF) →"
+],
+[
+"globe",
+"Elektron uçot platforması",
+"Qeydiyyat, bəyannamələrin təqdimi və məlumatların yenilənməsi İnternet Vergi İdarəsinin platformasında aparılır.",
+"{PLATFORMA}",
+"ecommerce.e-taxes.gov.az →"
+],
+[
+"doc",
+"ƏDV ödənişi üzrə təlimat",
+"Rəqəmsal xidmətlər üzrə ƏDV-nin ödənilməsi qaydası və rekvizitlər (ingilis dilində).",
+"{ODENIS_TELIMATI}",
+"Təlimatı aç (PDF) →"
+],
+[
+"mail",
+"Əlaqə",
+"Qeydiyyat zamanı yaranan suallar və texniki xətalar üçün.",
+"mailto:{EPOCT}",
+"{EPOCT} →"
+],
+[
+"lock",
+"Rəsmi saytı yoxlayın",
+"Dövlət saytlarının ünvanı .gov.az ilə bitir və HTTPS ilə açılır. Həssas məlumatı yalnız rəsmi saytlarda paylaşın.",
+"{MENBE_LINK}",
+"Mənbə səhifə →"
+]
+],
+"wiz": [
+[
+"Rəqəmsal xidmət",
+"book",
+"E-kitablar"
+],
+[
+"Rəqəmsal xidmət",
+"music",
+"Musiqi"
+],
+[
+"Rəqəmsal xidmət",
+"video",
+"Audio və video"
+],
+[
+"Rəqəmsal xidmət",
+"image",
+"Qrafik təsvirlər"
+],
+[
+"Rəqəmsal xidmət",
+"game",
+"Virtual oyunlar"
+],
+[
+"Rəqəmsal xidmət",
+"code",
+"Proqram təminatı / SaaS"
+],
+[
+"Rəqəmsal xidmət",
+"ad",
+"Onlayn reklam"
+],
+[
+"Rəqəmsal xidmət",
+"dots",
+"Digər analoji rəqəmsal xidmət"
+],
+[
+"Rəqəmsal xidmət sayılmır",
+"chat",
+"E-poçt / çat ilə məsləhət, hüquq, maliyyə, dizayn, mühəndis xidməti"
+],
+[
+"Rəqəmsal xidmət sayılmır",
+"school",
+"Real vaxtda onlayn tədris və təlim"
+],
+[
+"Rəqəmsal xidmət sayılmır",
+"ticket",
+"Tədbirlər üçün onlayn bilet sifarişi"
+],
+[
+"Yer göstəricisi",
+"",
+"Ödəniş Azərbaycan bankı / ödəniş təminatçısı vasitəsilə"
+],
+[
+"Yer göstəricisi",
+"",
+"IP ünvanı Azərbaycana aiddir"
+],
+[
+"Yer göstəricisi",
+"",
+"Mobil nömrə +994 kodludur"
+],
+[
+"Yer göstəricisi",
+"",
+"Yaşayış / qeydiyyat ünvanı Azərbaycandadır"
+]
+],
+"quick": [
+[
+"wizard",
+"Uçota alınmalıyammı?",
+"5 suallıq yoxlayıcı",
+"wizard"
+],
+[
+"calc",
+"ƏDV-ni hesabla",
+"{EDV_DERECESI} · son tarixlər",
+"calc"
+],
+[
+"pin",
+"Alıcının yeri necə müəyyən edilir?",
+"{YER_SAYI} göstərici",
+"faq?q=yerləşməsi"
+],
+[
+"x",
+"Nə rəqəmsal xidmət sayılmır?",
+"İstisnalar",
+"faq?q=sayılmır"
+],
+[
+"building",
+"B2B-yə şamil olunurmu?",
+"Əks ödəniş mexanizmi",
+"faq?q=B2B"
+],
+[
+"doc",
+"Hansı sənədlər lazımdır?",
+"Hazırlıq siyahısı",
+"process"
+]
+]
+}
+</script>
+<script>
+/* ============================== İDARƏETMƏ REJİMİ ==============================
+   Ziyarətçilər Excel ilə bağlı heç bir düymə, panel və ya yazı görmür.
+   İdarəetmə panelini açmaq üçün ünvanın sonuna ?admin=AÇAR yazın, məsələn:
+       https://sizin-sayt.az/index.html?admin=idare2026
+       file:///C:/Users/.../index.html?admin=idare2026
+   Brauzer bunu yadda saxlayır (açar ünvandan dərhal silinir). Söndürmək: paneldəki “Çıx” düyməsi.
+   AÇAR-ı aşağıda istədiyiniz sözlə əvəz edin.
+   Qeyd: bu gizlətmədir, parol qoruması deyil. Amma panel yalnız onu açan şəxsin ÖZ ekranını dəyişir —
+   ziyarətçilərin gördüyünü yalnız serverdəki fayllar müəyyən edir. */
+const ADMIN_KEY='idare2026', ADMIN_STORE='rvn-admin';
+const SRC_HTML='<!DOCTYPE html>\n'+document.documentElement.outerHTML;   // “HTML-i yüklə” üçün səhifənin ilkin surəti
+const IS_ADMIN=(()=>{
+  let on=false;try{on=localStorage.getItem(ADMIN_STORE)==='1'}catch(e){}
+  const q=new URLSearchParams(location.search);
+  if(q.has('admin')){
+    on=q.get('admin')===ADMIN_KEY;
+    try{on?localStorage.setItem(ADMIN_STORE,'1'):localStorage.removeItem(ADMIN_STORE)}catch(e){}
+    q.delete('admin');
+    try{history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash)}catch(e){}
+  }
+  return on;
+})();
+document.documentElement.classList.toggle('is-admin',IS_ADMIN);
+
+/* ============================== MƏLUMAT ==============================
+   Saytın bütün məlumatı aşağıdakı "site-data" blokundadır (standart dəyərlər).
+   Excel faylı qoşulduqda hər vərəq uyğun bölməni əvəz edir — bax: EXCEL İNTEQRASİYASI. */
+const DEF = JSON.parse(document.getElementById('site-data').textContent);
+let D = structuredClone(DEF);
+let REG=[], RATE=.18, THRESH=10000, USD_AZN=1.7, MANDATORY='2026-09-01', REG_DAYS=30, CHECK_DAYS=20, DECL_DAY=20, CURRS=['AZN','USD','EUR','GBP'], PH={};
+const MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','İyun','İyul','Avqust','Sentyabr','Oktyabr','Noyabr','Dekabr'];
+const MSHORT = ['Yan','Fev','Mar','Apr','May','İyn','İyl','Avq','Sen','Okt','Noy','Dek'];
+const DOW = ['B.e','Ç.a','Ç','C.a','C','Ş','B'];
+
+/* ============================== HELPERS ============================== */
+function pd(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function fd(d){return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear()}
+function fdx(d){return d?fd(d):'—'}
+function fdl(d){return d.getDate()+' '+MONTHS[d.getMonth()].toLowerCase()+' '+d.getFullYear()}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function dayDiff(a,b){return Math.round((pd2(b)-pd2(a))/864e5)}
+function pd2(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
+function nf(n,dec=0){const neg=n<0;let [i,f]=Math.abs(n).toFixed(dec).split('.');i=i.replace(/\B(?=(\d{3})+(?!\d))/g,' ');return (neg?'−':'')+i+(f?','+f:'')}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function deadlines(y,m){return {decl:new Date(y,m+1,DECL_DAY),pay:new Date(y,m+2,0)}}
+const TODAY = pd2(new Date());
+const $ = s=>document.querySelector(s);
+/* Azərbaycan dilində rəqəmdən sonra şəkilçi: 2026-cı, 20-ci, 2026-dan, 20-dən */
+function azVowel(n){n=Math.abs(Math.trunc(n));const u={1:'i',2:'i',3:'ü',4:'ö',5:'e',6:'ı',7:'i',8:'i',9:'u'},t={1:'o',2:'i',3:'u',4:'ı',5:'i',6:'ı',7:'i',8:'ə',9:'a'};if(n%10)return u[n%10];if(n%100)return t[(n%100)/10];if(n%1000)return 'ü';return n?'i':'ı'}
+function azOrd(n){const v=azVowel(n);return n+'-'+('ieə'.includes(v)?'ci':'aı'.includes(v)?'cı':'ou'.includes(v)?'cu':'cü')}
+function azAbl(n){return 'aıou'.includes(azVowel(n))?'dan':'dən'}
+/* {KOD} şablonları və sadə format: **qalın**, [mətn](link), "- " siyahı, avtomatik link */
+function tpl(s){return String(s??'').replace(/\{([A-Za-z0-9_]+)\}/g,(m,k)=>(k.toUpperCase() in PH)?PH[k.toUpperCase()]:m)}
+function safeUrl(u){u=String(u||'').trim();return /^(https?:\/\/|mailto:|tel:|#)/i.test(u)||(u&&!/^[a-z][\w+.-]*:/i.test(u))?u:'#'}
+function linkHTML(href,html){href=safeUrl(href);const ext=!href.startsWith('#')&&!href.startsWith('mailto:')&&!href.startsWith('tel:');return `<a href="${esc(href)}"${ext?' target="_blank" rel="noopener"':''}>${html}</a>`}
+function mdi(t){
+  const re=/\[([^\]]+)\]\(([^)\s]+)\)|\*\*(.+?)\*\*|(https?:\/\/[^\s<>()]+[^\s<>().,;:!?])|([\w.+-]+@[\w-]+(?:\.[\w-]+)+)/g;
+  let out='',last=0,m;
+  while((m=re.exec(t))){out+=esc(t.slice(last,m.index));last=re.lastIndex;
+    if(m[1]!==undefined)out+=linkHTML(m[2],esc(m[1]));
+    else if(m[3]!==undefined)out+='<b>'+mdi(m[3])+'</b>';
+    else if(m[4])out+=linkHTML(m[4],esc(m[4].replace(/^https?:\/\//,'').replace(/\/$/,'')));
+    else out+=linkHTML('mailto:'+m[5],esc(m[5]));}
+  return out+esc(t.slice(last));
+}
+function md(s){
+  const lines=tpl(s).replace(/\r\n?/g,'\n').split('\n').map(l=>l.trim());
+  let html='',cur=null,buf=[];
+  const flush=()=>{if(buf.length)html+=cur==='ul'?`<ul>${buf.map(x=>`<li>${mdi(x)}</li>`).join('')}</ul>`:`<div>${buf.map(mdi).join('<br>')}</div>`;buf=[]};
+  for(const l of lines){const b=l.match(/^[-•*]\s+(.*)$/),t=b?'ul':l?'p':null;if(t!==cur){flush();cur=t}if(b)buf.push(b[1]);else if(l)buf.push(l)}
+  flush();return html;
+}
+const tx=s=>esc(tpl(s)), mx=s=>mdi(tpl(s));
+const strip=s=>String(s).replace(/<[^>]+>/g,' ');
+
+const ICON = {
+ home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+ wizard:'<circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>',
+ registry:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+ calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8"/><path d="M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/>',
+ cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ process:'<circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 12h3M14 12h3"/>',
+ faq:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 015 0c0 1.7-2.5 2-2.5 4"/><path d="M12 17h.01"/>',
+ legal:'<path d="M12 3v18M5 21h14"/><path d="M5 7h14"/><path d="M5 7l-3 7a3 3 0 006 0zM19 7l-3 7a3 3 0 006 0z"/>',
+ up:'<path d="M12 19V5M5 12l7-7 7 7"/>',
+ check:'<path d="M5 12l5 5 9-10"/>',
+ alert:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
+ x:'<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>',
+ doc:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6"/>',
+ globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>',
+ mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+ lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',
+ book:'<path d="M4 4h6a3 3 0 013 3v13a2 2 0 00-2-2H4z"/><path d="M20 4h-6a3 3 0 00-3 3"/><path d="M20 4v14h-7"/>',
+ music:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+ video:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/>',
+ image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
+ game:'<rect x="2" y="7" width="20" height="10" rx="4"/><path d="M7 10v4M5 12h4M16 11h.01M18 13h.01"/>',
+ code:'<path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/>',
+ ad:'<path d="M3 11v2a1 1 0 001 1h3l6 4V6L7 10H4a1 1 0 00-1 1z"/><path d="M17 9a4 4 0 010 6"/>',
+ dots:'<circle cx="6" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>',
+ chat:'<path d="M4 5h16v11H8l-4 4z"/>',
+ school:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>',
+ ticket:'<path d="M3 8a2 2 0 002-2h14a2 2 0 002 2v2a2 2 0 000 4v2a2 2 0 00-2 2H5a2 2 0 00-2-2v-2a2 2 0 000-4z"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>',
+ building:'<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h2M14 7h2M8 11h2M14 11h2M8 15h2M14 15h2"/>',
+ both:'<circle cx="8" cy="9" r="3"/><rect x="13" y="6" width="8" height="12" rx="1"/><path d="M2 20a6 6 0 0112 0"/>',
+ pin:'<path d="M12 21s-7-6.5-7-12a7 7 0 0114 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+};
+function ic(name,size){return `<svg viewBox="0 0 24 24" ${size?`width="${size}" height="${size}"`:''} fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[String(name||'').trim().toLowerCase()]||ICON.dots}</svg>`}
+
+/* ============================== MƏLUMATDAN TÖRƏYƏNLƏR ============================== */
+function mkRec(n,name,tm,act,country,date){date=/^\d{4}-\d{2}-\d{2}$/.test(date||'')?date:'';const d=date?pd(date):null;return {n,name,tm:tm||'',act:act||'',country:country||'—',date,d,man:d?date>=MANDATORY:null}}
+function prm(k){const f=a=>a.find(p=>String(p[0]).toUpperCase()===k);const r=f(D.params)||f(DEF.params);return r?r[2]:undefined}
+function computeParams(){
+  const num=(v,d)=>{const n=typeof v==='number'?v:parseFloat(String(v??'').replace(/\s/g,'').replace(',','.'));return isFinite(n)?n:d};
+  RATE=num(prm('EDV_DERECESI'),.18);if(RATE>1)RATE/=100;
+  THRESH=num(prm('DOVRIYYE_HEDDI'),10000)||10000;USD_AZN=num(prm('USD_AZN'),1.7)||1.7;
+  MANDATORY=/^\d{4}-\d{2}-\d{2}$/.test(prm('MECBURI_TARIX')||'')?prm('MECBURI_TARIX'):'2026-09-01';
+  REG_DAYS=Math.round(num(prm('UCOT_MUDDETI'),30));CHECK_DAYS=Math.round(num(prm('YOXLAMA_MUDDETI'),20));
+  DECL_DAY=Math.min(28,Math.max(1,Math.round(num(prm('BEYANNAME_GUNU'),20))));
+  CURRS=String(prm('VALYUTALAR')||'AZN, USD, EUR, GBP').split(/[,;/\s]+/).map(s=>s.trim().toUpperCase()).filter(Boolean);
+  if(!CURRS.length)CURRS=['AZN'];
+  const md_=pd(MANDATORY);
+  PH={};
+  [...DEF.params,...D.params].forEach(([k,,v])=>{k=String(k).toUpperCase();PH[k]=/^\d{4}-\d{2}-\d{2}$/.test(v)?fd(pd(v)):typeof v==='number'?nf(v,Number.isInteger(v)?0:2):String(v??'')});
+  Object.assign(PH,{
+    EDV_DERECESI:nf(RATE*100,Math.round(RATE*1000)%10?1:0)+'%', DOVRIYYE_HEDDI:nf(THRESH), HEDD_AZN:nf(THRESH*USD_AZN), USD_AZN:nf(USD_AZN,2),
+    MECBURI_TARIX:fd(md_), MECBURI_TARIX_SOZLE:`${md_.getDate()} ${MONTHS[md_.getMonth()].toLowerCase()} ${azOrd(md_.getFullYear())} il`,
+    MECBURI_EVVEL:fd(addDays(md_,-1)), MECBURI_DAN:fd(md_)+'-'+azAbl(md_.getFullYear()),
+    UCOT_MUDDETI:String(REG_DAYS), YOXLAMA_MUDDETI:String(CHECK_DAYS), BEYANNAME_GUNU:String(DECL_DAY), BEYANNAME_GUNU_ORD:azOrd(DECL_DAY),
+    VALYUTALAR:CURRS.join(', '), BANK_SAYI:String(D.bank.length), YER_SAYI:String(LOCS().length)
+  });
+}
+const wizKind=s=>{const n=String(s||'').toLocaleLowerCase('az');return /sayılmır|sayilmir|istisna/.test(n)?'x':/yer|göstərici|gosterici/.test(n)?'loc':'d'};
+const DIGITAL=()=>D.wiz.filter(w=>wizKind(w[0])==='d').map(w=>[w[1]||'dots',w[2]]);
+const EXCLUDED=()=>D.wiz.filter(w=>wizKind(w[0])==='x').map(w=>[w[1]||'x',w[2]]);
+const LOCS=()=>D.wiz.filter(w=>wizKind(w[0])==='loc').map((w,i)=>['l'+i,w[2]]);
+const PAGE_IDS=[['home','home'],['wizard','wizard'],['registry','registry'],['calc','calc'],['cal','cal'],['process','process'],['faq','faq'],['legal','legal']];
+let PAGES=[];
+function buildPages(){PAGES=PAGE_IDS.map(([id,icn])=>{const r=D.pages.find(p=>p[0]===id)||DEF.pages.find(p=>p[0]===id)||[id,id,id,''];return {id,ic:icn,m:r[1]||r[2]||id,t:r[2]||r[1]||id,s:r[3]||''}})}
+let FAQ=[],FAQ_GROUPS={};
+function buildFAQ(){
+  FAQ_GROUPS={};const order=[];
+  FAQ=D.faq.filter(f=>f[1]).map(([g,q,a])=>{g=String(g||'Digər').trim();if(!order.includes(g)){order.push(g)}const key=(g.match(/^([IVXLC]+|\d+)[.)]/)||[])[1]||String(order.indexOf(g)+1);FAQ_GROUPS[key]=g;return {g:key,q,a}});
+}
+
+/* ============================== NAV / ROUTING ============================== */
+function renderNav(){
+  $('#nav').innerHTML = PAGES.map(p=>`<a href="#${p.id}" data-p="${p.id}">${ic(p.ic)}<span>${tx(p.m)}</span></a>`).join('');
+}
+function route(keepScroll){
+  const id = (location.hash||'#home').slice(1).split('?')[0];
+  const p = PAGES.find(x=>x.id===id)||PAGES[0];
+  document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id==='p-'+p.id));
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.p===p.id));
+  $('#pTitle').textContent=tpl(p.t); $('#pSub').textContent=tpl(p.s);
+  document.title=tpl(p.t)+' — Rəqəmsal İqtisadiyyat Vergi Naviqatoru';
+  if(keepScroll!==true){$('#side').classList.remove('open');window.scrollTo(0,0)}
+  if(p.id==='home') renderCharts();
+}
+window.addEventListener('hashchange',()=>route());
+$('#burger').onclick=()=>$('#side').classList.toggle('open');
+$('#todayChip').textContent='Bu gün: '+fd(TODAY);
+
+/* ============================== SABİT MƏTNLƏR (parametrlərlə) ============================== */
+function renderStatic(){
+  $('#footMenbe').textContent=PH.MENBE||'taxes.gov.az';
+  const md_=pd(MANDATORY);
+  $('#splitNote').textContent=`${md_.getDate()} ${MONTHS[md_.getMonth()].toLowerCase()} ${md_.getFullYear()}-dək qeydiyyat könüllü idi. Bu tarixdən etibarən illik B2C dövriyyəsi ${PH.DOVRIYYE_HEDDI} $-ı keçən qeyri-rezidentlər üçün uçot məcburidir.`;
+  $('#optVol').textContent=`Könüllü dövr (${PH.MECBURI_TARIX}-dək)`;
+  $('#optMan').textContent=`Məcburi dövr (${PH.MECBURI_DAN})`;
+  const pct=PH.EDV_DERECESI, r100=nf(RATE*100,Math.round(RATE*1000)%10?1:0);
+  $('#cModeExcl').textContent=`ƏDV-siz (üstünə ${pct})`;
+  $('#cModeIncl').textContent=`ƏDV daxil (${r100}/${nf(100+RATE*100,Math.round(RATE*1000)%10?1:0)})`;
+  $('#cNote').textContent=`Qeyd: valyuta qeydiyyat zamanı seçilir və sonradan dəyişdirilə bilməz. İcazə verilən valyutalar: ${PH.VALYUTALAR}.`;
+  $('#dVatL').textContent=`Hesablanmış ƏDV · ${pct}`;
+  const cur=$('#cCur').value; $('#cCur').innerHTML=CURRS.map(c=>`<option>${esc(c)}</option>`).join('');
+  $('#cCur').value=CURRS.includes(cur)?cur:(CURRS.includes('USD')?'USD':CURRS[0]);
+  $('#tSub').textContent=`Təqvim ili ərzində Azərbaycandakı fiziki şəxslərə göstərilmiş xidmətlər üzrə dövriyyə · hədd: ${PH.DOVRIYYE_HEDDI} ABŞ dollarının manat ekvivalenti`;
+  $('#tMid').textContent=`Hədd: ${PH.DOVRIYYE_HEDDI} $ ≈ ${PH.HEDD_AZN} ₼ (1 USD = ${PH.USD_AZN} AZN)`;
+  $('#tMax').textContent=`${nf(THRESH*2)} $`;
+  $('#tRange').max=THRESH*2; $('#tRange').step=Math.max(1,Math.round(THRESH/40));
+  $('#calLegD').textContent=`Bəyannamə son tarixi (ayın ${PH.BEYANNAME_GUNU_ORD} günü)`;
+}
+
+/* ============================== TOOLTIP ============================== */
+const tip=$('#tip');
+function showTip(e,html){tip.innerHTML=html;tip.style.display='block';const r=tip.getBoundingClientRect();let x=e.clientX+14,y=e.clientY+14;if(x+r.width>innerWidth-8)x=e.clientX-r.width-14;if(y+r.height>innerHeight-8)y=e.clientY-r.height-14;tip.style.left=x+'px';tip.style.top=y+'px'}
+function hideTip(){tip.style.display='none'}
+
+/* ============================== HOME: KPIs ============================== */
+let monthsSeries=[], countries=[];
+function derive(){
+  REG=D.reg.map(r=>mkRec(...r));
+  const dated=REG.filter(r=>r.d);
+  let s=new Date(2024,11,1), e=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
+  dated.forEach(r=>{const f=new Date(r.d.getFullYear(),r.d.getMonth(),1);if(f<s)s=f;if(f>e)e=f});
+  const out=[]; let y=s.getFullYear(),m=s.getMonth();
+  while(y<e.getFullYear()||(y===e.getFullYear()&&m<=e.getMonth())){
+    const neu = dated.filter(r=>r.d.getFullYear()===y&&r.d.getMonth()===m);
+    out.push({y,m,label:MSHORT[m]+" '"+String(y).slice(2),full:MONTHS[m]+' '+y,neu:neu.length,names:neu.map(r=>r.name),man:new Date(y,m,1)>=pd(MANDATORY)});
+    m++; if(m>11){m=0;y++}
+  }
+  let c=0; out.forEach(o=>{c+=o.neu;o.cum=c}); monthsSeries=out;
+  const cm={};REG.forEach(r=>cm[r.country]=(cm[r.country]||0)+1);
+  countries=Object.entries(cm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value||a.label.localeCompare(b.label,'az'));
+}
+function sparkline(vals,{type='line'}={}){
+  const W=120,H=56,p=4,max=Math.max(...vals,1),n=Math.max(vals.length,2);
+  if(type==='bar'){const bw=(W-p*2)/vals.length;return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true">${vals.map((v,i)=>{const h=Math.max(2,(v/max)*(H-p*2));return `<rect x="${p+i*bw+1}" y="${H-p-h}" width="${Math.max(2,bw-2)}" height="${h}" rx="1.5" fill="var(--s1)"/>`}).join('')}</svg>`}
+  const xs=i=>p+i*(W-p*2)/(n-1), ys=v=>H-p-(v/max)*(H-p*2);
+  const d=vals.map((v,i)=>(i?'L':'M')+xs(i).toFixed(1)+' '+ys(v).toFixed(1)).join('');
+  const li=vals.length-1;
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d} L${xs(li)} ${H-p} L${p} ${H-p}Z" fill="var(--s1)" opacity=".1"/><path d="${d}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round"/><circle cx="${xs(li)}" cy="${ys(vals[li])}" r="3" fill="var(--s1)" stroke="#fff" stroke-width="1.5"/></svg>`;
+}
+function renderKPIs(){
+  const total=REG.length;
+  const last=monthsSeries[monthsSeries.length-1];
+  const ev=upcomingEvents(2);
+  const decl=ev.find(e=>e.k==='d'), pay=ev.find(e=>e.k==='p');
+  const daysMand = dayDiff(pd(MANDATORY),TODAY);
+  const top=countries[0]||{label:'—',value:0};
+  const cards=[
+   {t:'Uçotda olan qeyri-rezidentlər',s:'Reyestr · '+fd(TODAY),v:`${total}`,vs:' şirkət',spark:sparkline(monthsSeries.map(o=>o.cum)),chip:`<span class="chip good">${ic('up')}${last?last.neu:0}</span> ${last?last.full:''}`,go:'registry'},
+   {t:'Ölkələrin sayı',s:'Qeydiyyat ölkəsi üzrə',v:`${countries.length}`,vs:' ölkə',spark:sparkline(countries.map(c=>c.value),{type:'bar'}),chip:`Lider: <b>${esc(top.label)}</b> (${top.value})`,go:'registry'},
+   {t:'ƏDV dərəcəsi',s:'Rəqəmsal xidmətlər (B2C)',v:esc(PH.EDV_DERECESI),vs:'',chip:'<span class="chip neutral">Aylıq hesabat dövrü</span>',go:'calc'},
+   {t:'Uçot həddi',s:'Təqvim ili ərzində B2C dövriyyə',v:esc(PH.DOVRIYYE_HEDDI),vs:' $',chip:`≈ ${PH.HEDD_AZN} ₼ · 1 USD = ${PH.USD_AZN} AZN`,go:'wizard'},
+   {t:'Məcburi uçot',s:'Qüvvəyəminmə tarixi',v:PH.MECBURI_TARIX,vs:'',chip: daysMand>=0?`<span class="chip good">${ic('check')}Qüvvədədir</span> ${daysMand} gündür`:`<span class="chip warn">${ic('alert')}${-daysMand} gün qalıb</span>`,go:'faq'},
+   {t:'Növbəti bəyannamə',s:decl?`${MONTHS[decl.pm]} ${decl.py} dövrü üzrə`:'',v:decl?fd(decl.date):'—',vs:'',chip:decl?deadlineChip(decl.date):'',go:'cal'},
+   {t:'Növbəti ƏDV ödənişi',s:pay?`${MONTHS[pay.pm]} ${pay.py} dövrü üzrə`:'',v:pay?fd(pay.date):'—',vs:'',chip:pay?deadlineChip(pay.date):'',go:'cal'},
+   {t:'Uçota alınma müddəti',s:'Hədd aşıldıqdan sonra',v:String(REG_DAYS),vs:' gün',chip:`<span class="chip neutral">Yoxlama: ${CHECK_DAYS} iş günü</span>`,go:'process'}
+  ];
+  $('#kpis').innerHTML=cards.map(c=>`<div class="card kpi link" data-go="${c.go}" tabindex="0" role="link" aria-label="${esc(c.t)}"><h3>${c.t}</h3><div class="sub">${c.s}</div><div class="kpi-body"><div class="kpi-val">${c.v}<small>${c.vs}</small></div>${c.spark||''}</div><div class="kpi-foot">${c.chip}</div></div>`).join('');
+  $('#kpis').querySelectorAll('[data-go]').forEach(el=>{el.onclick=()=>location.hash=el.dataset.go;el.onkeydown=e=>{if(e.key==='Enter')location.hash=el.dataset.go}});
+}
+function deadlineChip(d){const n=dayDiff(TODAY,d);const cls=n<=5?'crit':n<=10?'warn':'info';const icn=n<=10?'alert':'info';return `<span class="chip ${cls}">${ic(icn)}${n===0?'Bu gün':n+' gün qalıb'}</span>`}
+function upcomingEvents(count){
+  const ev=[];
+  for(let k=-2;k<14;k++){
+    const base=new Date(TODAY.getFullYear(),TODAY.getMonth()+k,1);
+    const {decl,pay}=deadlines(base.getFullYear(),base.getMonth());
+    if(decl>=TODAY)ev.push({k:'d',date:decl,py:base.getFullYear(),pm:base.getMonth()});
+    if(pay>=TODAY)ev.push({k:'p',date:pay,py:base.getFullYear(),pm:base.getMonth()});
+  }
+  return ev.sort((a,b)=>a.date-b.date).slice(0,count);
+}
+function renderTicker(){
+  const items=[...REG].sort((a,b)=>(b.d||0)-(a.d||0)||b.n-a.n).map(r=>`<div class="tick"><b>${esc(r.name)}</b><span>${esc(r.country)} · ${fdx(r.d)}</span></div>`).join('');
+  $('#ticker').innerHTML=items+items;
+}
+function renderSplit(){
+  const vol=REG.filter(r=>r.man===false).length, man=REG.filter(r=>r.man===true).length;
+  $('#splitBar').innerHTML=`<div style="flex:${vol};background:var(--s1)" title="Könüllü dövr: ${vol}">${vol}</div><div style="flex:${man};background:var(--s2)" title="Məcburi dövr: ${man}">${man}</div>`;
+  const first=REG.filter(r=>r.d).reduce((a,r)=>!a||r.d<a?r.d:a,null);
+  $('#splitLegend').innerHTML=`<div><span class="badge vol"><i></i>Könüllü dövr</span><b>${vol}</b>${first&&first<pd(MANDATORY)?fd(first):'—'} – ${PH.MECBURI_EVVEL}</div><div style="text-align:right"><span class="badge man"><i></i>Məcburi dövr</span><b>${man}</b>${PH.MECBURI_DAN}</div>`;
+}
+function renderQuick(){
+  $('#quick').innerHTML=D.quick.filter(q=>q[1]).map(([i,t,s,h])=>`<button class="opt" data-h="${esc(h||'')}"><span class="ic">${ic(i)}</span><span><b>${tx(t)}</b><small>${tx(s)}</small></span></button>`).join('');
+  $('#quick').querySelectorAll('button').forEach(b=>b.onclick=()=>goHash(b.dataset.h));
+}
+function goHash(h){
+  h=String(h||'').trim(); if(!h)return;
+  if(/^(https?:|mailto:)/i.test(h)){window.open(safeUrl(h),'_blank','noopener');return}
+  h=h.replace(/^#/,'');const [p,qs]=h.split('?');
+  if(p==='faq'&&qs){const v=decodeURIComponent((qs.split('=')[1]||'').replace(/\+/g,' '));faqState.q=v;faqState.g='all';$('#faqQ').value=v;renderFAQ()}
+  location.hash=p;
+}
+
+/* ============================== CHARTS ============================== */
+let trendMode='line';
+document.querySelectorAll('#trendMode button').forEach(b=>b.onclick=()=>{trendMode=b.dataset.m;document.querySelectorAll('#trendMode button').forEach(x=>x.classList.toggle('on',x===b));renderTrend()});
+document.querySelectorAll('[data-tbl]').forEach(b=>b.onclick=()=>{const c=document.getElementById(b.dataset.tbl);c.classList.toggle('show-table');b.classList.toggle('on',c.classList.contains('show-table'))});
+function niceMax(v){const steps=[5,10,15,20,25,30,40,50];return steps.find(s=>s>=v)||Math.ceil(v/10)*10}
+function roundTopBar(x,y,w,h,r){r=Math.min(r,w/2,h);return `M${x} ${y+h}V${y+r}Q${x} ${y} ${x+r} ${y}H${x+w-r}Q${x+w} ${y} ${x+w} ${y+r}V${y+h}Z`}
+function renderTrend(){
+  const el=$('#trendChart'); const W=Math.max(320,el.clientWidth), H=280;
+  const m={t:26,r:16,b:34,l:34}; const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const data=monthsSeries, n=data.length;
+  const vals = trendMode==='line'?data.map(d=>d.cum):data.map(d=>d.neu);
+  const max=niceMax(Math.max(...vals,1)); const step=max<=10?2:max<=50?5:Math.ceil(max/50)*10;
+  const band=iw/n; const xC=i=>m.l+band*i+band/2; const y=v=>m.t+ih-(v/max)*ih;
+  let s=`<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="${trendMode==='line'?'Kumulyativ uçot sayı':'Aylıq yeni uçot'}">`;
+  for(let v=0;v<=max;v+=step){s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}" stroke="${v?'#e6ecec':'#c9d4d3'}"/><text x="${m.l-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="#6f7d82">${v}</text>`}
+  const every = band<26?3:band<40?2:1;
+  data.forEach((d,i)=>{if((n-1-i)%every===0)s+=`<text x="${xC(i)}" y="${H-12}" text-anchor="middle" font-size="11" fill="#6f7d82">${d.label}</text>`});
+  const md_=pd(MANDATORY); const mi=data.findIndex(d=>d.y===md_.getFullYear()&&d.m===md_.getMonth());
+  if(mi>=0){const mx=m.l+band*mi;s+=`<line x1="${mx}" x2="${mx}" y1="${m.t-8}" y2="${m.t+ih}" stroke="#4c5b60" stroke-dasharray="4 4"/><text x="${mx-6}" y="${m.t-12}" text-anchor="end" font-size="11" font-weight="600" fill="#4c5b60">Məcburi uçot · ${PH.MECBURI_TARIX} →</text>`}
+  if(trendMode==='line'){
+    const pts=vals.map((v,i)=>[xC(i),y(v)]);
+    const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('');
+    s+=`<path d="${d}L${pts[n-1][0]} ${y(0)}L${pts[0][0]} ${y(0)}Z" fill="var(--s1)" opacity=".1"/><path d="${d}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round"/>`;
+    const li=n-1; s+=`<circle cx="${pts[li][0]}" cy="${pts[li][1]}" r="4.5" fill="var(--s1)" stroke="#fff" stroke-width="2"/><text x="${pts[li][0]-8}" y="${pts[li][1]-10}" text-anchor="end" font-size="12" font-weight="700" fill="#18262b">${vals[li]}</text>`;
+    s+=`<line id="xh" x1="0" x2="0" y1="${m.t}" y2="${m.t+ih}" stroke="#9aa8ab" visibility="hidden"/><circle id="xd" r="5" fill="var(--s1)" stroke="#fff" stroke-width="2" visibility="hidden"/>`;
+  } else {
+    const bw=Math.min(28,band*0.62);
+    data.forEach((d,i)=>{if(!d.neu)return;const h=ih*(d.neu/max);s+=`<path d="${roundTopBar(xC(i)-bw/2,y(d.neu),bw,h,4)}" fill="${d.man?'var(--s2)':'var(--s1)'}"/>`;if(d.neu>=2)s+=`<text x="${xC(i)}" y="${y(d.neu)-6}" text-anchor="middle" font-size="11" font-weight="600" fill="#18262b">${d.neu}</text>`});
+  }
+  data.forEach((d,i)=>{s+=`<rect class="hit" data-i="${i}" x="${m.l+band*i}" y="${m.t}" width="${band}" height="${ih}" fill="transparent"/>`});
+  s+='</svg>'; el.innerHTML=s;
+  const svg=el.querySelector('svg');
+  svg.querySelectorAll('.hit').forEach(r=>{
+    r.addEventListener('mousemove',e=>{const i=+r.dataset.i,d=data[i];
+      if(trendMode==='line'){const xh=svg.querySelector('#xh'),xd=svg.querySelector('#xd');xh.setAttribute('x1',xC(i));xh.setAttribute('x2',xC(i));xh.setAttribute('visibility','visible');xd.setAttribute('cx',xC(i));xd.setAttribute('cy',y(d.cum));xd.setAttribute('visibility','visible')}
+      else r.setAttribute('fill','rgba(0,0,0,.035)');
+      const names=d.names.length?`<div style="margin-top:6px;color:#4c5b60;max-width:260px">${d.names.map(esc).join('<br>')}</div>`:'';
+      showTip(e,`<b>${d.full}</b><div class="row"><span>Cəmi uçotda</span><span><b style="display:inline">${d.cum}</b></span></div><div class="row"><span><i style="background:${d.man?'var(--s2)':'var(--s1)'}"></i>Yeni (${d.man?'məcburi dövr':'könüllü dövr'})</span><span>${d.neu}</span></div>${names}`)});
+    r.addEventListener('mouseleave',()=>{hideTip();r.setAttribute('fill','transparent');const xh=svg.querySelector('#xh');if(xh){xh.setAttribute('visibility','hidden');svg.querySelector('#xd').setAttribute('visibility','hidden')}});
+  });
+  $('#trendTitle').textContent= trendMode==='line'?'Uçota alınmış qeyri-rezidentlər':'Aylıq yeni uçota alınmalar';
+  $('#trendSub').textContent= trendMode==='line'?'Kumulyativ say, aylar üzrə':'Ay ərzində uçota alınan şirkətlərin sayı';
+  $('#trendLegend').innerHTML = trendMode==='bar'?'<span><i style="background:var(--s1)"></i>Könüllü dövr</span><span><i style="background:var(--s2)"></i>Məcburi dövr</span>':'';
+  $('#trendTable').innerHTML=`<table class="dt"><thead><tr><th>Ay</th><th class="num">Yeni</th><th class="num">Cəmi</th><th>Rejim</th></tr></thead><tbody>${data.map(d=>`<tr><td>${d.full}</td><td class="num">${d.neu}</td><td class="num">${d.cum}</td><td>${d.man?'<span class="badge man"><i></i>Məcburi</span>':'<span class="badge vol"><i></i>Könüllü</span>'}</td></tr>`).join('')}</tbody></table>`;
+}
+function renderCountry(){
+  const el=$('#countryChart'); const W=Math.max(300,el.clientWidth);
+  const rowH=26, m={t:4,r:34,b:4,l:128}; const H=m.t+m.b+rowH*countries.length;
+  const iw=W-m.l-m.r; const max=Math.max(...countries.map(c=>c.value),1);
+  let s=`<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Ölkələr üzrə bölgü">`;
+  countries.forEach((c,i)=>{const y=m.t+i*rowH; const w=Math.max(4,iw*c.value/max); const bh=14;
+    s+=`<g class="hb" data-i="${i}" style="cursor:pointer"><rect x="0" y="${y}" width="${W}" height="${rowH}" fill="transparent"/><text x="${m.l-10}" y="${y+rowH/2+4}" text-anchor="end" font-size="12" fill="#18262b">${esc(c.label)}</text><path d="M${m.l} ${y+(rowH-bh)/2}H${m.l+w-4}Q${m.l+w} ${y+(rowH-bh)/2} ${m.l+w} ${y+(rowH-bh)/2+4}V${y+(rowH+bh)/2-4}Q${m.l+w} ${y+(rowH+bh)/2} ${m.l+w-4} ${y+(rowH+bh)/2}H${m.l}Z" fill="var(--s1)"/><text x="${m.l+w+6}" y="${y+rowH/2+4}" font-size="12" font-weight="600" fill="#18262b">${c.value}</text></g>`});
+  s+='</svg>'; el.innerHTML=s;
+  el.querySelectorAll('.hb').forEach(g=>{const c=countries[+g.dataset.i];
+    g.addEventListener('mousemove',e=>{g.querySelector('rect').setAttribute('fill','rgba(0,0,0,.035)');const names=REG.filter(r=>r.country===c.label).map(r=>esc(r.name)).join('<br>');showTip(e,`<b>${esc(c.label)}</b><div class="row"><span>Şirkət sayı</span><span>${c.value}</span></div><div style="margin-top:6px;color:#4c5b60">${names}</div>`)});
+    g.addEventListener('mouseleave',()=>{hideTip();g.querySelector('rect').setAttribute('fill','transparent')});
+    g.addEventListener('click',()=>{hideTip();regState.country=c.label;renderRegistry();location.hash='registry'});
+  });
+  $('#countryTable').innerHTML=`<table class="dt"><thead><tr><th>Ölkə</th><th class="num">Şirkət sayı</th><th class="num">Pay</th></tr></thead><tbody>${countries.map(c=>`<tr><td>${esc(c.label)}</td><td class="num">${c.value}</td><td class="num">${nf(c.value/Math.max(REG.length,1)*100,1)}%</td></tr>`).join('')}</tbody></table>`;
+}
+function renderCharts(){renderKPIs();renderTrend();renderCountry()}
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if($('#p-home').classList.contains('active'))renderCharts()},150)});
+
+/* ============================== WIZARD ============================== */
+const W_STEPS=['pe','svc','cust','loc','turn'];
+let W={step:0,a:{loc:[]}};
+function wizRender(){
+  const box=$('#wiz'); const st=W_STEPS[W.step];
+  const DIG=DIGITAL(), EXC=EXCLUDED(), LOC=LOCS();
+  if(W.result){box.innerHTML=wizResult();box.querySelector('#wReset').onclick=()=>{W={step:0,a:{loc:[]}};wizRender()};box.querySelector('#wBack').onclick=()=>{delete W.result;wizRender()};return}
+  const pct=(W.step)/W_STEPS.length*100;
+  let h=`<div class="wiz-step-label">Sual ${W.step+1} / ${W_STEPS.length}</div><div class="progress"><div style="width:${pct}%"></div></div>`;
+  if(st==='pe'){
+    h+=`<h2>Azərbaycanda daimi nümayəndəliyiniz varmı?</h2><p class="hint">Daimi nümayəndəlik vasitəsilə fəaliyyət göstərənlərə bu rejim tətbiq edilmir.</p><div class="opts">${opt('pe','no','globe','Xeyr','Fiziki mövcudluğumuz yoxdur, xidməti internet üzərindən göstəririk')}${opt('pe','yes','building','Bəli','Azərbaycanda daimi nümayəndəliyimiz var')}</div>`;
+  } else if(st==='svc'){
+    h+=`<h2>Hansı xidməti göstərirsiniz?</h2><p class="hint">Rəqəmsal xidmət — internet üzərindən avtomatlaşdırılmış qaydada, minimal insan iştirakı ilə göstərilən xidmətdir.</p><div class="group-title">Rəqəmsal xidmətlər</div><div class="opts">${DIG.map(([i,l],k)=>opt('svc','d'+k,i,l,'')).join('')}</div>${EXC.length?`<div class="group-title">Rəqəmsal xidmət sayılmayanlar</div><div class="opts">${EXC.map(([i,l],k)=>opt('svc','x'+k,i,l,'')).join('')}</div>`:''}`;
+  } else if(st==='cust'){
+    h+=`<h2>Müştəriləriniz kimlərdir?</h2><p class="hint">Qayda yalnız son istehlakçılara (B2C) göstərilən xidmətlərə tətbiq olunur.</p><div class="opts">${opt('cust','b2c','user','Fiziki şəxslər (B2C)','Azərbaycanda vergi uçotunda olmayan son istehlakçılar')}${opt('cust','b2b','building','Şirkətlər (B2B)','Azərbaycanda vergi uçotunda olan biznes müştərilər')}${opt('cust','both','both','Hər ikisi','Həm fiziki şəxslər, həm də şirkətlər')}</div>`;
+  } else if(st==='loc'){
+    const cb=(v,inner)=>`<label class="opt ${W.a.loc.includes(v)?'sel':''}" style="cursor:pointer"><input type="checkbox" data-loc="${v}" ${W.a.loc.includes(v)?'checked':''} style="margin-top:3px;accent-color:var(--s1);width:16px;height:16px"><span>${inner}</span></label>`;
+    h+=`<h2>Alıcının Azərbaycanda olduğunu göstərən hansı əlamətlər var?</h2><p class="hint">Uyğun olanların hamısını seçin. Bu göstəricilər alıcının yerini müəyyən etmək üçün istifadə olunur.</p><div class="opts">${LOC.map(([v,l])=>cb(v,`<b>${tx(l)}</b>`)).join('')}${cb('none','<b>Heç biri</b><small>Alıcılarımızın Azərbaycanla əlaqəsi yoxdur</small>')}</div>`;
+  } else if(st==='turn'){
+    const v=W.a.turn??'';
+    h+=`<h2>Cari təqvim ilində Azərbaycandakı fiziki şəxslərə dövriyyəniz nə qədərdir?</h2><p class="hint">Yalnız B2C dövriyyəni daxil edin. Hədd: ${PH.DOVRIYYE_HEDDI} ABŞ dollarının manat ekvivalenti (≈ ${PH.HEDD_AZN} ₼).</p>
+    <div class="inline"><div class="field"><label for="wTurn">Dövriyyə, ABŞ dolları</label><input id="wTurn" type="number" min="0" step="100" value="${esc(v)}" placeholder="məs. ${nf(Math.round(THRESH*1.45/100)*100)}"></div>
+    <div class="field"><label for="wDate">Hədd hansı tarixdə aşılıb? (istəyə görə)</label><input id="wDate" type="date" value="${esc(W.a.date||'')}"></div></div>
+    <div class="meter"><div id="wBar"></div></div><div class="meter-labels"><span>0 $</span><span id="wAzn"></span><span>${PH.DOVRIYYE_HEDDI} $</span></div>`;
+  }
+  const canNext = st==='loc'?W.a.loc.length>0: st==='turn'? (W.a.turn!==undefined&&W.a.turn!=='') : W.a[st]!==undefined;
+  h+=`<div class="wiz-nav"><button class="btn ghost" id="wPrev" ${W.step===0?'style="visibility:hidden"':''}>← Geri</button><button class="btn" id="wNext" ${canNext?'':'disabled'}>${st==='turn'?'Nəticəni göstər':'Davam →'}</button></div>`;
+  box.innerHTML=h;
+  box.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{W.a[b.dataset.k]=b.dataset.v;box.querySelectorAll(`[data-k="${b.dataset.k}"]`).forEach(x=>x.classList.toggle('sel',x===b));wizNext()});
+  box.querySelectorAll('[data-loc]').forEach(c=>c.onchange=()=>{const v=c.dataset.loc;if(v==='none'){W.a.loc=c.checked?['none']:[]}else{W.a.loc=W.a.loc.filter(x=>x!=='none'&&x!==v);if(c.checked)W.a.loc.push(v)}wizRender()});
+  const t=box.querySelector('#wTurn');
+  if(t){const upd=()=>{W.a.turn=t.value;const n=+t.value||0;const p=Math.min(100,n/THRESH*100);const b=$('#wBar');b.style.width=p+'%';b.style.background=n>THRESH?'var(--crit)':'var(--s1)';$('#wAzn').textContent=`≈ ${nf(n*USD_AZN)} ₼`;$('#wNext').disabled=t.value==='';};t.oninput=upd;upd();box.querySelector('#wDate').onchange=e=>W.a.date=e.target.value;if($('#p-wizard').classList.contains('active'))setTimeout(()=>t.focus(),50)}
+  box.querySelector('#wPrev').onclick=()=>{W.step=Math.max(0,W.step-1);wizRender()};
+  box.querySelector('#wNext').onclick=()=>wizNext(true);
+}
+function opt(k,v,i,l,s){return `<button class="opt ${W.a[k]===v?'sel':''}" data-k="${k}" data-v="${v}"><span class="ic">${ic(i)}</span><span><b>${tx(l)}</b>${s?`<small>${s}</small>`:''}</span></button>`}
+function wizNext(){
+  const st=W_STEPS[W.step], a=W.a;
+  if(st==='pe'&&a.pe==='yes')return wizEnd('pe');
+  if(st==='svc'&&a.svc&&a.svc[0]==='x')return wizEnd('notdigital');
+  if(st==='cust'&&a.cust==='b2b')return wizEnd('b2b');
+  if(st==='loc'&&a.loc.includes('none'))return wizEnd('notaz');
+  if(st==='turn')return wizEnd((+a.turn||0)>THRESH?'mandatory':'voluntary');
+  W.step++; wizRender();
+}
+function wizEnd(r){W.result=r;wizRender()}
+function wizResult(){
+  const a=W.a, r=W.result, DIG=DIGITAL(), EXC=EXCLUDED(), nLoc=LOCS().length;
+  const svcItem = a.svc? (a.svc[0]==='d'?DIG[+a.svc.slice(1)]:EXC[+a.svc.slice(1)]) : null;
+  const svcLabel = svcItem?tpl(svcItem[1]):null;
+  const ans=[ a.pe&&('Daimi nümayəndəlik: '+(a.pe==='yes'?'var':'yoxdur')), svcLabel&&('Xidmət: '+svcLabel), a.cust&&('Müştərilər: '+{b2c:'B2C',b2b:'B2B',both:'B2C + B2B'}[a.cust]), a.loc.length&&('Yer göstəriciləri: '+(a.loc.includes('none')?'heç biri':a.loc.length+' / '+nLoc)), a.turn!==undefined&&a.turn!==''&&/mandatory|voluntary/.test(r)&&('B2C dövriyyə: '+nf(+a.turn)+' $')].filter(Boolean);
+  const plat=mx('{PLATFORMA}'), mail=mx('{EPOCT}');
+  let cls,icon,tag,title,body;
+  if(r==='pe'){cls='r-info';icon='info';tag='Bu rejim şamil edilmir';title='Ümumi vergi qaydaları tətbiq olunur';body=`<p>Azərbaycanda daimi nümayəndəlik vasitəsilə fəaliyyət göstərən qeyri-rezidentlərə rəqəmsal xidmətlər üzrə elektron uçot qaydası tətbiq edilmir. Vergi öhdəlikləriniz daimi nümayəndəlik üzrə ümumi qaydada müəyyən olunur.</p><ul><li><a href="https://www.taxes.gov.az/az/page/beynelxalq-vergi-munasibetleri" target="_blank" rel="noopener">Beynəlxalq vergi münasibətləri</a> bölməsinə baxın</li></ul>`}
+  else if(r==='notdigital'){cls='r-info';icon='info';tag='Rəqəmsal xidmət sayılmır';title='Bu xidmət elektron ticarət qaydasına düşmür';body=`<p>Seçdiyiniz xidmət (<b>${esc(svcLabel)}</b>) elektron ticarət qaydasında göstərilən rəqəmsal xidmət hesab edilmir, ona görə bu platformada uçot tələbi yaranmır.</p><ul><li>Digər vergi öhdəlikləri üçün ümumi qaydalara baxın</li><li><a href="#faq" onclick="goHash('faq?q=sayılmır');return false">İstisnalar haqqında sual-cavab</a></li></ul>`}
+  else if(r==='b2b'){cls='r-info';icon='building';tag='B2B əməliyyat';title='ƏDV-ni yerli alıcı əks ödənişlə ödəyir';body=`<p>Qayda yalnız B2C əməliyyatlarına tətbiq olunur. Azərbaycanda vergi uçotunda olan şirkətlərə göstərilən xidmətlər üzrə ƏDV öhdəliyini yerli alıcı <b>əks ödəniş (reverse charge)</b> mexanizmi ilə yerinə yetirir.</p><ul><li>Əməliyyatın B2B olduğunu alıcının vergi nömrəsi (VÖEN) və ya digər biznes identifikatoru ilə təsdiqləyin</li><li>Sizin tərəfdən platformada uçot tələb olunmur</li></ul>`}
+  else if(r==='notaz'){cls='r-warn';icon='alert';tag='Diqqət';title='Alıcının Azərbaycanda olduğu təsdiqlənmir';body=`<p>Göstəricilərdən heç biri (${LOCS().map(l=>tx(l[1]).toLocaleLowerCase('az')).join('; ')}) yoxdursa, xidmət Azərbaycandakı istehlakçıya göstərilmiş sayılmaya bilər.</p><ul><li>Müştəri bazanızın göstəricilərini dövri yoxlayın — vəziyyət dəyişə bilər</li><li>Dəqiqləşdirmə üçün: ${mail}</li></ul>`}
+  else if(r==='mandatory'){
+    const n=+a.turn; cls='r-crit';icon='alert';tag='Məcburi uçot';title='Vergi uçotuna alınmalısınız';
+    let dl='';
+    if(a.date){const ex=pd(a.date);const due=addDays(ex,REG_DAYS);const left=dayDiff(TODAY,due);
+      dl=`<div class="fact"><span>Uçot üçün son tarix</span><b>${fd(due)}</b><small class="sub">${left>=0?left+' gün qalıb':'<span style="color:var(--crit-ink);font-weight:600">'+(-left)+' gün gecikib</span>'}</small></div>`;
+      if(ex<pd(MANDATORY))dl+=`<div class="fact" style="grid-column:span 2"><span>Qeyd</span><small class="sub" style="display:block;margin-top:4px">Hədd ${PH.MECBURI_TARIX}-dək aşılıb. Məcburi tələb ${PH.MECBURI_DAN} tətbiq olunur — dəqiq müddəti DVX ilə dəqiqləşdirin.</small></div>`;
+    } else dl=`<div class="fact"><span>Uçot müddəti</span><b>${REG_DAYS} gün</b><small class="sub">həddin aşıldığı gündən</small></div>`;
+    body=`<p>B2C dövriyyəniz (${nf(n)} $ ≈ ${nf(n*USD_AZN)} ₼) illik həddi <b>${nf(n-THRESH)} $</b> üstələyir. ${PH.MECBURI_TARIX_SOZLE}dən etibarən bu halda elektron qaydada uçot məcburidir.</p>
+    <div class="facts">${dl}<div class="fact"><span>ƏDV dərəcəsi</span><b>${PH.EDV_DERECESI}</b></div><div class="fact"><span>Bəyannamə</span><b>Aylıq</b><small class="sub">növbəti ayın ${PH.BEYANNAME_GUNU_ORD} gününədək</small></div></div>
+    <b>Növbəti addımlar</b><ol><li>${plat} platformasında qeydiyyat müraciəti edin</li><li>Sənədləri, ən azı 2 məsul şəxsi və bank məlumatlarını hazırlayın — <a href="#process">hazırlıq siyahısı</a></li><li>Ödəniş valyutasını seçin (${esc(PH.VALYUTALAR)}) — sonradan dəyişdirilmir</li><li>Yoxlama ${CHECK_DAYS} iş günü çəkir; uçotdan sonra hər ay bəyannamə verin və ƏDV-ni ayın sonunadək ödəyin</li></ol>${a.cust==='both'?'<p style="margin-top:10px">B2B hissəsi üzrə ƏDV-ni yerli alıcı əks ödənişlə ödəyir; hədd yalnız B2C dövriyyəyə tətbiq olunur.</p>':''}`;
+  } else {
+    const n=+a.turn||0; cls='r-good';icon='check';tag='Məcburi uçot tələb olunmur';title='Hədd aşılmayıb — könüllü uçot mümkündür';
+    body=`<p>B2C dövriyyəniz (${nf(n)} $) illik həddən <b>${nf(THRESH-n)} $</b> azdır. Hal-hazırda uçot məcburi deyil, lakin könüllü qeydiyyatdan keçə bilərsiniz.</p>
+    <div class="meter" style="margin:12px 0 4px"><div style="width:${Math.min(100,n/THRESH*100)}%;background:var(--s1)"></div></div><div class="meter-labels"><span>${nf(n/THRESH*100,0)}% istifadə olunub</span><span>${PH.DOVRIYYE_HEDDI} $</span></div>
+    <ul style="margin-top:12px"><li>Dövriyyəni ay-ay izləyin — həddi keçdiyiniz gündən ${REG_DAYS} gün ərzində uçota alınmalısınız</li><li><a href="#calc">Hədd izləyicisi və kalkulyator</a></li></ul>${a.cust==='both'?'<p style="margin-top:10px">B2B hissəsi həddə daxil edilmir — orada ƏDV-ni yerli alıcı əks ödənişlə ödəyir.</p>':''}`;
+  }
+  return `<div class="wiz-step-label">Nəticə</div><div class="progress"><div style="width:100%"></div></div>
+  <div class="result ${cls}"><div class="result-head"><div class="result-ic">${ic(icon)}</div><div><div class="tag">${tag}</div><h2>${title}</h2></div></div>${body}
+  <div class="answers">Cavablarınız: ${ans.map(esc).join(' · ')}</div></div>
+  <div class="wiz-nav"><button class="btn ghost" id="wBack">← Cavabı dəyiş</button><button class="btn" id="wReset">Yenidən başla</button></div>
+  <p class="sub" style="margin-top:12px">Nəticə məlumat xarakterlidir və rəsmi rəy deyil.</p>`;
+}
+function wizSanitize(){ // Excel-də seçimlər dəyişibsə, köhnə cavabları sıfırla
+  const a=W.a; if(a.svc){const arr=a.svc[0]==='d'?DIGITAL():EXCLUDED();if(!arr[+a.svc.slice(1)]){delete a.svc;delete W.result;W.step=Math.min(W.step,1)}}
+  const ids=new Set(LOCS().map(l=>l[0]));a.loc=a.loc.filter(x=>x==='none'||ids.has(x));
+}
+
+/* ============================== REGISTRY ============================== */
+const regState={q:'',country:'all',period:'all',sort:'n',dir:1};
+let regChanged=new Set();
+function regFiltered(){
+  const q=regState.q.toLocaleLowerCase('az');
+  const cmp=(a,b)=>{const k=regState.sort;
+    if(k==='date'){if(!a.d||!b.d)return (a.d?-1:b.d?1:0);return (a.d-b.d)*regState.dir}
+    const va=a[k],vb=b[k];
+    if(typeof va==='number'&&typeof vb==='number')return (va-vb)*regState.dir;
+    return String(va).localeCompare(String(vb),'az',{sensitivity:'base'})*regState.dir};
+  return REG.filter(r=>(!q||(r.name+' '+r.tm+' '+r.act).toLocaleLowerCase('az').includes(q))&&(regState.country==='all'||r.country===regState.country)&&(regState.period==='all'||(regState.period==='man')===(r.man===true)))
+   .sort((a,b)=>cmp(a,b)||a.n-b.n);
+}
+function regimeBadge(r){return r.man===true?'<span class="badge man"><i></i>Məcburi dövr</span>':r.man===false?'<span class="badge vol"><i></i>Könüllü dövr</span>':'<span class="sub">—</span>'}
+function renderRegistry(){
+  if(regState.country!=='all'&&!countries.some(c=>c.label===regState.country))regState.country='all';
+  $('#regChips').innerHTML=`<button class="fchip ${regState.country==='all'?'on':''}" data-c="all">Bütün ölkələr<em>${REG.length}</em></button>`+countries.map(c=>`<button class="fchip ${regState.country===c.label?'on':''}" data-c="${esc(c.label)}">${esc(c.label)}<em>${c.value}</em></button>`).join('');
+  $('#regChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{regState.country=b.dataset.c;renderRegistry()});
+  const rows=regFiltered();
+  const q=regState.q;
+  const rx=q?new RegExp('('+esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'):null;
+  const hl=s=>rx?esc(s).replace(rx,'<mark>$1</mark>'):esc(s);
+  $('#regTable tbody').innerHTML=rows.length?rows.map(r=>`<tr class="${regChanged.has(r.name)?'chg':''}"><td class="num">${r.n}</td><td><b style="font-weight:600">${hl(r.name)}</b></td><td><span class="tm">${r.tm?hl(r.tm):'—'}</span></td><td class="act">${r.act?hl(r.act):'—'}</td><td>${esc(r.country)}</td><td>${fdx(r.d)}</td><td>${regimeBadge(r)}</td></tr>`).join(''):`<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Nəticə tapılmadı</td></tr>`;
+  $('#regCount').textContent=`${REG.length} şirkətdən ${rows.length} göstərilir`;
+  document.querySelectorAll('#regTable th.sortable').forEach(th=>{th.textContent=th.textContent.replace(/ [▲▼]$/,'');if(th.dataset.k===regState.sort)th.textContent+=regState.dir>0?' ▲':' ▼'});
+  $('#regPeriod').value=regState.period;
+}
+$('#regQ').oninput=e=>{regState.q=e.target.value.trim();renderRegistry()};
+$('#regPeriod').onchange=e=>{regState.period=e.target.value;renderRegistry()};
+document.querySelectorAll('#regTable th.sortable').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(regState.sort===k)regState.dir*=-1;else{regState.sort=k;regState.dir=1}renderRegistry()});
+
+/* ============================== CALCULATOR ============================== */
+(function(){
+  const sel=$('#cMonth'); const opts=[];
+  for(let k=-12;k<=1;k++){const d=new Date(TODAY.getFullYear(),TODAY.getMonth()+k,1);opts.push(`<option value="${d.getFullYear()}-${d.getMonth()}" ${k===-1?'selected':''}>${MONTHS[d.getMonth()]} ${d.getFullYear()}</option>`)}
+  sel.innerHTML=opts.join('');
+})();
+let calcMode='excl', trackVal=null;
+document.querySelectorAll('#cMode button').forEach(b=>b.onclick=()=>{calcMode=b.dataset.m;document.querySelectorAll('#cMode button').forEach(x=>x.classList.toggle('on',x===b));calc()});
+function calc(){
+  const amt=Math.max(0,+$('#cAmt').value||0), cur=$('#cCur').value; const [y,m]=$('#cMonth').value.split('-').map(Number);
+  const base= calcMode==='excl'?amt:amt/(1+RATE); const vat= base*RATE; const tot=base+vat;
+  const f=v=>nf(v,2)+' '+cur;
+  $('#dBase').textContent=f(base);$('#dVat').textContent=f(vat);$('#dTot').textContent=f(tot);$('#dVat2').textContent=f(vat);
+  $('#dPeriod').textContent=MONTHS[m]+' '+y;
+  const {decl,pay}=deadlines(y,m);
+  $('#dDecl').textContent=fd(decl);$('#dPay').textContent=fd(pay);
+  const lab=d=>{const n=dayDiff(TODAY,d);return n<0?`<span style="color:var(--crit-ink)">${-n} gün keçib</span>`:n===0?'bu gün':n+' gün qalıb'};
+  $('#dDeclL').innerHTML=lab(decl);$('#dPayL').innerHTML=lab(pay);
+}
+['#cAmt','#cCur','#cMonth'].forEach(s=>$(s).addEventListener('input',calc));
+function tracker(v){
+  v=Math.max(0,+v||0); trackVal=v; const mx=THRESH*2; $('#tRange').value=Math.min(mx,v); $('#tNum').value=v;
+  const p=Math.min(100,v/mx*100); const b=$('#tBar'); b.style.width=p+'%';
+  const ratio=v/THRESH;
+  b.style.background= ratio>1?'var(--crit)':ratio>=.8?'var(--warn)':'var(--s1)';
+  $('#tMsg').innerHTML = ratio>1?`<span class="chip crit">${ic('alert')}Hədd aşılıb</span> Hədd ${nf(v-THRESH)} $ üstələnib — ${REG_DAYS} gün ərzində uçota alınmalısınız. <a href="#wizard">Öhdəlik yoxlayıcısı →</a>`
+   : ratio>=.8?`<span class="chip warn">${ic('alert')}Həddə yaxın</span> Həddə ${nf(THRESH-v)} $ qalıb (${nf(ratio*100)}%). Dövriyyəni aylıq izləyin.`
+   : `<span class="chip good">${ic('check')}Hədd daxilində</span> Həddə ${nf(THRESH-v)} $ qalıb (${nf(ratio*100)}%). Könüllü qeydiyyat mümkündür.`;
+}
+$('#tRange').oninput=e=>tracker(e.target.value);$('#tNum').oninput=e=>tracker(e.target.value);
+
+/* ============================== CALENDAR ============================== */
+let calView=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
+function renderCal(){
+  const y=calView.getFullYear(),m=calView.getMonth();
+  $('#calTitle').textContent=MONTHS[m]+' '+y;
+  const first=new Date(y,m,1), offset=(first.getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+  const prevM=new Date(y,m-1,1);
+  let h=DOW.map(d=>`<div class="dow">${d}</div>`).join('');
+  for(let i=0;i<offset;i++)h+='<div class="day out"></div>';
+  for(let d=1;d<=days;d++){
+    const dt=new Date(y,m,d); let ev='';
+    if(d===DECL_DAY)ev+=`<span class="ev d">Bəyannamə · ${MSHORT[prevM.getMonth()]}</span>`;
+    if(d===days)ev+=`<span class="ev p">ƏDV ödənişi · ${MSHORT[prevM.getMonth()]}</span>`;
+    h+=`<div class="day ${+dt===+TODAY?'today':''}"><span class="n">${d}</span>${ev}</div>`;
+  }
+  $('#calGrid').innerHTML=h;
+  const ev=upcomingEvents(6);
+  $('#upcoming').innerHTML=ev.map(e=>`<li><div class="dd ${e.k}"><b>${e.date.getDate()}</b><span>${MSHORT[e.date.getMonth()]}</span></div><div><b style="font-weight:600">${e.k==='d'?'ƏDV bəyannaməsi':'ƏDV ödənişi'}</b><div class="sub">${MONTHS[e.pm]} ${e.py} dövrü</div></div><div class="left">${dayDiff(TODAY,e.date)===0?'bu gün':dayDiff(TODAY,e.date)+' gün'}</div></li>`).join('');
+}
+$('#calPrev').onclick=()=>{calView=new Date(calView.getFullYear(),calView.getMonth()-1,1);renderCal()};
+$('#calNext').onclick=()=>{calView=new Date(calView.getFullYear(),calView.getMonth()+1,1);renderCal()};
+
+/* ============================== PROCESS ============================== */
+let stepOn=0;
+function renderSteps(){
+  const STEPS=D.steps.filter(s=>s[0]);
+  stepOn=Math.min(stepOn,Math.max(0,STEPS.length-1));
+  $('#steps').style.setProperty('--n',Math.max(1,STEPS.length));
+  $('#steps').innerHTML=STEPS.map((s,i)=>`<button class="step ${i<stepOn?'done':''} ${i===stepOn?'on':''}" data-i="${i}" aria-current="${i===stepOn}"><div class="dot">${i<stepOn?ic('check',18):i+1}</div><div class="lbl">${tx(s[0])}</div><div class="when">${tx(s[1])}</div></button>`).join('');
+  $('#steps').querySelectorAll('.step').forEach(b=>b.onclick=()=>{stepOn=+b.dataset.i;renderSteps()});
+  const s=STEPS[stepOn]; if(!s){$('#stepDetail').innerHTML='';return}
+  const bullets=String(s[3]||'').split(/\r?\n/).map(x=>x.replace(/^[-•*]\s+/,'').trim()).filter(Boolean);
+  $('#stepDetail').innerHTML=`<div class="chip info" style="margin-bottom:8px">Addım ${stepOn+1} · ${tx(s[1])}</div><h3>${tx(s[0])}</h3><div class="md" style="color:var(--text-2)">${md(s[2])}</div>${bullets.length?`<ul>${bullets.map(x=>`<li>${mx(x)}</li>`).join('')}</ul>`:''}<div class="wiz-nav" style="justify-content:flex-start"><button class="btn ghost" id="sPrev" ${stepOn===0?'disabled':''}>← Əvvəlki</button><button class="btn" id="sNext" ${stepOn===STEPS.length-1?'disabled':''}>Növbəti addım →</button></div>`;
+  $('#sPrev').onclick=()=>{stepOn--;renderSteps()};$('#sNext').onclick=()=>{stepOn++;renderSteps()};
+}
+const ckState=new Set();
+function renderChecklist(){
+  const groups=[];D.check.filter(c=>c[1]).forEach(([g,t,s])=>{g=String(g||'Digər').trim();let G=groups.find(x=>x[0]===g);if(!G){G=[g,[]];groups.push(G)}G[1].push([t,s])});
+  if(D.bank.length)groups.push(['Bank məlumatları',D.bank.map(b=>[b[0],b[1]])]);
+  let i=0,total=0;
+  $('#checklist').innerHTML=groups.map(([g,items])=>`<div class="group-title">${tx(g)}</div>`+items.map(([t,s])=>{const id='ck'+(i++);total++;return `<label class="check"><input type="checkbox" data-id="${id}" ${ckState.has(id)?'checked':''}><span>${tx(t)}${s?`<small>${tx(s)}</small>`:''}</span></label>`}).join('')).join('');
+  [...ckState].forEach(id=>{if(+id.slice(2)>=total)ckState.delete(id)});
+  const upd=()=>{const p=total?ckState.size/total*100:0;$('#ckBar').style.width=p+'%';$('#ckTxt').textContent=`${ckState.size} / ${total} hazırdır (${nf(p)}%)`};
+  $('#checklist').querySelectorAll('input').forEach(c=>c.onchange=()=>{c.checked?ckState.add(c.dataset.id):ckState.delete(c.dataset.id);upd()});
+  upd();
+}
+function renderBank(){
+  $('#bankTitleSub').textContent=`Portalda tələb olunan ${D.bank.length} sahə`;
+  $('#bankTbl').innerHTML=`<thead><tr><th>Sahə</th><th>İzah</th></tr></thead><tbody>${D.bank.map(b=>`<tr><td><b class="mono" style="font-weight:600">${tx(b[0])}</b></td><td>${mx(b[1])}</td></tr>`).join('')}</tbody>`;
+}
+function digitCheck(inp,out,len,name){const v=inp.value.replace(/\s/g,'');if(!v){out.innerHTML='';return}const ok=new RegExp('^\\d{'+len+'}$').test(v);out.innerHTML=ok?`<span class="chip good">${ic('check')}Format düzgündür</span> ${len} rəqəm`:`<span class="chip crit">${ic('x')}Format səhvdir</span> ${name} ${len} rəqəmdən ibarət olmalıdır (indi: ${v.length}${/\D/.test(v)?', rəqəm olmayan simvol var':''})`}
+$('#mid').oninput=()=>digitCheck($('#mid'),$('#midMsg'),15,'Merchant ID');
+$('#mcc').oninput=()=>digitCheck($('#mcc'),$('#mccMsg'),4,'MCC');
+
+/* ============================== FAQ ============================== */
+const faqState={q:'',g:'all'};
+function renderFAQ(){
+  if(faqState.g!=='all'&&!(faqState.g in FAQ_GROUPS))faqState.g='all';
+  const counts={all:FAQ.length};FAQ.forEach(f=>counts[f.g]=(counts[f.g]||0)+1);
+  $('#faqTabs').innerHTML=[['all','Hamısı'],...Object.entries(FAQ_GROUPS)].map(([k,l])=>`<button class="fchip ${faqState.g===k?'on':''}" data-g="${esc(k)}">${tx(l)}<em>${counts[k]}</em></button>`).join('');
+  $('#faqTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{faqState.g=b.dataset.g;renderFAQ()});
+  const q=faqState.q.trim().toLocaleLowerCase('az');
+  const list=FAQ.map((f,i)=>({...f,i,ah:md(f.a),qt:tpl(f.q)})).filter(f=>(faqState.g==='all'||f.g===faqState.g)&&(!q||(f.qt+' '+strip(f.ah)).toLocaleLowerCase('az').includes(q)));
+  const rx=q?new RegExp('('+esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'):null;
+  const hlText=s=>rx?s.replace(rx,'<mark>$1</mark>'):s;
+  const hlHtml=s=>rx?s.split(/(<[^>]+>)/).map(p=>p.startsWith('<')?p:p.replace(rx,'<mark>$1</mark>')).join(''):s;
+  let last=null;
+  $('#faqList').innerHTML=list.length?list.map(f=>{let head='';if(faqState.g==='all'&&f.g!==last){last=f.g;head=`<div class="group-title">${tx(FAQ_GROUPS[f.g])}</div>`}const idx=FAQ.filter(x=>x.g===f.g).indexOf(FAQ[f.i])+1;return head+`<details class="acc" ${q?'open':''} id="faq-${f.i}"><summary><span class="num">${esc(f.g)}.${idx}</span>${hlText(esc(f.qt))}</summary><div class="a md">${hlHtml(f.ah)}</div></details>`}).join(''):`<div class="card" style="text-align:center;color:var(--muted)">Uyğun sual tapılmadı. Sualınızı ${mx('{EPOCT}')} ünvanına göndərin.</div>`;
+}
+$('#faqQ').oninput=e=>{faqState.q=e.target.value;renderFAQ()};
+
+/* ============================== LEGAL ============================== */
+function renderLegal(){
+  $('#legal').innerHTML=D.legal.filter(l=>l[1]).map(([i,t,p,h,l])=>`<div class="card doc"><div class="ic">${ic(i||'doc')}</div><div><h3>${tx(t)}</h3><p>${mx(p)}</p>${h?linkHTML(tpl(h),tx(l||'Aç →')):''}</div></div>`).join('');
+}
+
+/* ============================== GLOBAL SEARCH ============================== */
+let INDEX=[];
+function buildIndex(){INDEX=[
+ ...REG.map(r=>({t:r.name,s:`Reyestr · ${r.tm?r.tm+' · ':''}${r.country} · ${fdx(r.d)}`,k:r.act,go:()=>{regState.q=r.name;$('#regQ').value=r.name;regState.country='all';regState.period='all';renderRegistry();location.hash='registry'}})),
+ ...FAQ.map((f,i)=>({t:tpl(f.q),s:'Sual-cavab · '+tpl(FAQ_GROUPS[f.g]),k:strip(md(f.a)),go:()=>{faqState.q='';faqState.g='all';$('#faqQ').value='';renderFAQ();location.hash='faq';setTimeout(()=>{const d=document.getElementById('faq-'+i);if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'})}},80)}})),
+ ...D.bank.map(b=>({t:tpl(b[0]),s:'Bank məlumatları · '+tpl(b[1]),go:()=>location.hash='process'})),
+ ...PAGES.map(p=>({t:tpl(p.m),s:'Bölmə · '+tpl(p.s),go:()=>location.hash=p.id}))
+];}
+const gs=$('#gsearch'),gr=$('#gres');
+gs.addEventListener('input',()=>{const q=gs.value.trim().toLocaleLowerCase('az');if(q.length<2){gr.classList.remove('open');return}
+  const hits=INDEX.filter(x=>(x.t+' '+x.s+' '+(x.k||'')).toLocaleLowerCase('az').includes(q)).slice(0,8);
+  gr.innerHTML=hits.length?hits.map(h=>`<button data-i="${INDEX.indexOf(h)}">${esc(h.t)}<small>${esc(h.s)}</small></button>`).join(''):'<div style="padding:10px 12px;color:var(--muted)">Nəticə yoxdur</div>';
+  gr.classList.add('open');gr.querySelectorAll('button').forEach(b=>b.onclick=()=>{INDEX[+b.dataset.i].go();gr.classList.remove('open');gs.value=''})});
+document.addEventListener('click',e=>{if(!e.target.closest('.search'))gr.classList.remove('open')});
+
+/* ============================== HAMISINI YENİDƏN QUR ============================== */
+function renderAll(){
+  computeParams(); buildPages(); buildFAQ(); derive(); wizSanitize();
+  renderStatic(); renderNav(); renderTicker(); renderSplit(); renderQuick(); buildIndex();
+  renderRegistry(); wizRender(); calc(); tracker(trackVal??Math.round(THRESH*0.725)); renderCal();
+  renderSteps(); renderChecklist(); renderBank(); renderFAQ(); renderLegal();
+  route(true);
+}
+
+/* ============================== EXCEL İNTEQRASİYASI ==============================
+   Bütün məlumat "qeyri-rezidentler-reyestri.xlsx" faylından oxunur (hər bölmə — ayrıca vərəq).
+   1) Veb server / intranet: HTML ilə eyni qovluqdakı fayl açılışda və hər 30 saniyədə oxunur.
+   2) Kompüterdə (Chrome / Edge): "Excel faylını qoş" → fayl hər 2 saniyədə yoxlanılır (canlı əlaqə).
+   3) Digər brauzerlər: fayl bir dəfəlik oxunur.
+   Vərəq yoxdursa və ya boşdursa, həmin bölmə üçün daxili (standart) məlumat göstərilir.
+   Xarici kitabxana tələb olunmur — .xlsx (ZIP + XML) brauzerin öz vasitələri ilə açılır. */
+const XL={file:'qeyri-rezidentler-reyestri.xlsx',livePoll:2000,serverPoll:30000,cacheKey:'rvn-sayt-excel-v2'};
+
+/* ---------- .xlsx oxuyucu ---------- */
+async function xlUnzip(buf){
+  const dv=new DataView(buf),u8=new Uint8Array(buf),td=new TextDecoder();
+  let eo=-1;
+  for(let i=u8.length-22;i>=Math.max(0,u8.length-65557);i--){if(dv.getUint32(i,true)===0x06054b50){eo=i;break}}
+  if(eo<0)throw new Error('Fayl .xlsx formatında deyil');
+  const files={};let p=dv.getUint32(eo+16,true);const cnt=dv.getUint16(eo+10,true);
+  for(let k=0;k<cnt&&p+46<=u8.length&&dv.getUint32(p,true)===0x02014b50;k++){
+    const nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true);
+    files[td.decode(u8.subarray(p+46,p+46+nl)).replace(/\\/g,'/').toLowerCase()]={m:dv.getUint16(p+10,true),cs:dv.getUint32(p+20,true),off:dv.getUint32(p+42,true)};
+    p+=46+nl+el+cl;
+  }
+  return async name=>{
+    const f=name&&files[name.toLowerCase()];if(!f)return null;
+    const st=f.off+30+dv.getUint16(f.off+26,true)+dv.getUint16(f.off+28,true);const data=u8.subarray(st,st+f.cs);
+    if(f.m===0)return td.decode(data);
+    if(f.m!==8)throw new Error('Dəstəklənməyən sıxılma üsulu');
+    if(typeof DecompressionStream==='undefined')throw new Error('Brauzer köhnədir — Chrome, Edge, Firefox və ya Safari-nin son versiyasından istifadə edin');
+    return td.decode(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+  };
+}
+const xlNorm=s=>String(s??'').toLocaleLowerCase('az').replace(/[ıİ]/g,'i').replace(/ə/g,'e').replace(/ş/g,'s').replace(/ç/g,'c').replace(/ğ/g,'g').replace(/ö/g,'o').replace(/ü/g,'u').replace(/\s+/g,' ').trim();
+function xlCol(ref){let n=0;for(const ch of ref.toUpperCase()){const c=ch.charCodeAt(0);if(c<65||c>90)break;n=n*26+c-64}return n-1}
+async function xlRead(buf){
+  const get=await xlUnzip(buf);
+  const P=s=>new DOMParser().parseFromString(s,'application/xml');
+  const T=(el,t)=>Array.from(el.getElementsByTagNameNS('*',t));
+  const wbx=await get('xl/workbook.xml');if(!wbx)throw new Error('Excel iş kitabı tapılmadı');
+  const wb=P(wbx);
+  const d1904=T(wb,'workbookPr').some(e=>/^(1|true)$/i.test(e.getAttribute('date1904')||''));
+  const rels={};const rx=await get('xl/_rels/workbook.xml.rels');
+  if(rx)T(P(rx),'Relationship').forEach(r=>rels[r.getAttribute('Id')]={t:r.getAttribute('Target')||'',y:r.getAttribute('Type')||''});
+  const path=t=>!t?null:t.startsWith('/')?t.slice(1):'xl/'+t.replace(/^\.\//,'');
+  const RNS='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  const sstRel=Object.values(rels).find(r=>/\/sharedStrings$/.test(r.y));
+  const sstX=(await get(path(sstRel&&sstRel.t)))||(await get('xl/sharedStrings.xml'));
+  const ss=sstX?T(P(sstX),'si').map(si=>T(si,'t').filter(t=>t.parentNode.localName!=='rPh').map(t=>t.textContent).join('')):[];
+  const sheets=[];
+  for(const s of T(wb,'sheet')){
+    const name=(s.getAttribute('name')||'').trim(), rid=s.getAttributeNS(RNS,'id')||s.getAttribute('r:id');
+    const x=await get(path(rels[rid]&&rels[rid].t));if(!x)continue;
+    const grid=[];let ri=-1;
+    T(P(x),'row').forEach(row=>{
+      ri=row.getAttribute('r')?+row.getAttribute('r')-1:ri+1;const out=grid[ri]=[];let ci=-1;
+      T(row,'c').forEach(c=>{
+        const ref=c.getAttribute('r');ci=ref?xlCol(ref):ci+1;const t=c.getAttribute('t');let v;
+        if(t==='inlineStr')v=T(c,'t').map(e=>e.textContent).join('');
+        else{const ve=T(c,'v')[0];if(!ve)return;v=ve.textContent;
+          if(t==='s')v=ss[+v]??'';else if(t==='b')v=v==='1';else if(t==='str'||t==='e'||t==='d'){}else{const n=Number(v);v=isNaN(n)?v:n}}
+        out[ci]=v;
+      });
+    });
+    sheets.push({name,key:xlNorm(name),grid});
+  }
+  if(!sheets.length)throw new Error('Vərəq tapılmadı');
+  return {sheets,d1904};
+}
+function xlDate(v,d1904){
+  const iso=d=>isNaN(d)?'':d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  if(v==null||v==='')return '';
+  if(typeof v==='number'){const u=new Date(Date.UTC(1899,11,30)+Math.round((v+(d1904?1462:0))*864e5));return iso(new Date(u.getUTCFullYear(),u.getUTCMonth(),u.getUTCDate()))}
+  const s=String(v).trim();let m;
+  if((m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})/)))return iso(new Date(+m[3],+m[2]-1,+m[1]));
+  if((m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)))return iso(new Date(+m[1],+m[2]-1,+m[3]));
+  return '';
+}
+const one=v=>v==null?'':(v===true?'Bəli':v===false?'Xeyr':String(v)).replace(/\s+/g,' ').trim();
+const multi=v=>v==null?'':String(v).replace(/\r\n?/g,'\n').split('\n').map(l=>l.replace(/[ \t]+/g,' ').trim()).join('\n').replace(/\n{3,}/g,'\n\n').trim();
+/* Hər bölmə: vərəq adı, başlıqların tanınması (adına görə — sütunların yeri dəyişə bilər), sətrin çevrilməsi */
+const XL_SPECS={
+ reg:{label:'Reyestr',sheet:/reyestr/,find:true,req:'name',cols:[['n',h=>/^(№|no\.?|n\.?|sira|s\/s)$/.test(h)],['tm',h=>/trademark|emtee|nisan/.test(h)],['act',h=>/fealiyyet|istiqamet|activity/.test(h)],['country',h=>/olke|country/.test(h)],['date',h=>/tarix|date/.test(h)],['name',h=>/adi|sexs|sirket|name/.test(h)]],
+   row:(g,ctx)=>{const date=xlDate(g.date,ctx.d1904);if(!date)ctx.warn.push(one(g.name));return [typeof g.n==='number'?g.n:(parseInt(one(g.n),10)||ctx.seq),one(g.name),one(g.tm),one(g.act),one(g.country)||'—',date]}},
+ params:{label:'Parametrlər',sheet:/parametr/,req:'code',cols:[['code',h=>/^kod/.test(h)],['label',h=>/parametr|^ad/.test(h)],['value',h=>/deyer|value/.test(h)],['note',h=>/izah|qeyd/.test(h)]],
+   row:(g,ctx)=>{const k=one(g.code).toUpperCase().replace(/[^A-Z0-9_]/g,'_');let v=g.value;if(/TARIX/.test(k))v=xlDate(v,ctx.d1904)||one(v);else if(typeof v!=='number')v=multi(v);return [k,one(g.label),v,one(g.note)]}},
+ pages:{label:'Bölmələr',sheet:/bolme/,req:'id',cols:[['id',h=>/^kod/.test(h)],['menu',h=>/menyu/.test(h)],['sub',h=>/^alt/.test(h)],['title',h=>/basl|sehife/.test(h)]],
+   row:g=>[one(g.id).toLowerCase(),one(g.menu),one(g.title),one(g.sub)]},
+ faq:{label:'Sual-cavab',sheet:/sual/,req:'q',cols:[['g',h=>/bolme|qrup/.test(h)],['q',h=>/^sual/.test(h)],['a',h=>/cavab/.test(h)]],
+   row:g=>[one(g.g),one(g.q),multi(g.a)]},
+ steps:{label:'Uçot prosesi',sheet:/proses/,req:'t',cols:[['t',h=>/addim|merhele/.test(h)],['w',h=>/muddet|vaxt/.test(h)],['d',h=>/izah/.test(h)],['l',h=>/bend/.test(h)]],
+   row:g=>[one(g.t),one(g.w),multi(g.d),multi(g.l)]},
+ check:{label:'Hazırlıq siyahısı',sheet:/hazirliq/,req:'t',cols:[['g',h=>/qrup/.test(h)],['t',h=>/bend/.test(h)],['s',h=>/qeyd|izah/.test(h)]],
+   row:g=>[one(g.g),one(g.t),one(g.s)]},
+ bank:{label:'Bank məlumatları',sheet:/bank/,req:'k',cols:[['k',h=>/sahe/.test(h)],['v',h=>/izah/.test(h)]],
+   row:g=>[one(g.k),multi(g.v)]},
+ legal:{label:'Hüquqi baza',sheet:/huquq/,req:'t',cols:[['i',h=>/ikon/.test(h)],['label',h=>/metn/.test(h)],['href',h=>/link|kecid|unvan|url/.test(h)],['t',h=>/basl/.test(h)],['p',h=>/izah/.test(h)]],
+   row:g=>[one(g.i).toLowerCase(),one(g.t),multi(g.p),one(g.href),one(g.label)]},
+ wiz:{label:'Yoxlayıcı',sheet:/yoxlayici/,req:'t',cols:[['kind',h=>/nov|kateqoriya/.test(h)],['i',h=>/ikon/.test(h)],['t',h=>/metn|^ad/.test(h)]],
+   row:g=>[one(g.kind)||'Rəqəmsal xidmət',one(g.i).toLowerCase(),one(g.t)]},
+ quick:{label:'Sürətli keçidlər',sheet:/suretli|kecidler/,req:'t',cols:[['i',h=>/ikon/.test(h)],['s',h=>/^alt/.test(h)],['t',h=>/basl/.test(h)],['h',h=>/kecid|link/.test(h)]],
+   row:g=>[one(g.i).toLowerCase(),one(g.t),one(g.s),one(g.h)]},
+};
+function xlTable(grid,spec){
+  for(let i=0;i<Math.min(grid.length,15);i++){
+    const m={};(grid[i]||[]).forEach((v,ci)=>{const h=xlNorm(v);if(!h)return;const k=spec.cols.find(([k,f])=>!(k in m)&&f(h));if(k)m[k[0]]=ci});
+    if(spec.req in m)return {hr:i,map:m};
+  }
+  return null;
+}
+function xlToData({sheets,d1904}){
+  const parts={},warn=[],found=[];
+  for(const [sec,spec] of Object.entries(XL_SPECS)){
+    let sh=sheets.find(s=>spec.sheet.test(s.key)), tb=sh&&xlTable(sh.grid,spec);
+    if(!tb&&spec.find){for(const s of sheets){const t=xlTable(s.grid,spec);if(t){sh=s;tb=t;break}}}
+    if(!sh||!tb)continue;
+    const ctx={d1904,warn:[],seq:0},rows=[];
+    for(let i=tb.hr+1;i<sh.grid.length;i++){
+      const r=sh.grid[i];if(!r)continue;
+      const g={};for(const [k,ci] of Object.entries(tb.map))g[k]=r[ci];
+      if(!one(g[spec.req]))continue;ctx.seq++;
+      rows.push(spec.row(g,ctx));
+    }
+    if(!rows.length)continue;
+    parts[sec]=rows;found.push(spec.label);
+    if(sec==='reg'&&ctx.warn.length)warn.push(...ctx.warn);
+  }
+  if(!found.length)throw new Error('Faylda tanınan vərəq tapılmadı (Reyestr, Parametrlər, Sual-cavab…)');
+  return {parts,warn,found};
+}
+async function xlParse(buf){return xlToData(await xlRead(buf))}
+
+/* ---------- Məlumatın tətbiqi ---------- */
+const xlState={mode:'embedded',name:'',mod:0,at:0,warn:[],err:'',found:[]};
+function recKey(r){return JSON.stringify([r.n,r.name,r.tm,r.act,r.country,r.date])}
+let curParts=null;   // son tətbiq edilmiş Excel məlumatı (yoxdursa — null, daxili məlumat)
+function applyParts(parts,{silent=false}={}){
+  curParts=parts;
+  const next={};for(const k of Object.keys(DEF))next[k]=parts&&parts[k]&&parts[k].length?parts[k]:structuredClone(DEF[k]);
+  if(OFFICIAL)overlayOfficial(next,OFFICIAL);   // taxes.gov.az məlumatı ən sonda — həmişə üstündür
+  const oldReg=REG, oldD=D;
+  const changedSecs=Object.keys(next).filter(k=>k!=='reg'&&JSON.stringify(next[k])!==JSON.stringify(oldD[k])).map(k=>XL_SPECS[k].label);
+  D=next; renderAll();
+  const old=new Map(oldReg.map(r=>[r.name,recKey(r)])), nw=new Set(REG.map(r=>r.name));
+  const added=REG.filter(r=>!old.has(r.name)).length, changed=REG.filter(r=>old.has(r.name)&&old.get(r.name)!==recKey(r)).length, removed=[...old.keys()].filter(k=>!nw.has(k)).length;
+  const regSame=oldReg.length===REG.length&&oldReg.every((r,i)=>recKey(r)===recKey(REG[i]));
+  regChanged=silent?new Set():new Set(REG.filter(r=>!old.has(r.name)||old.get(r.name)!==recKey(r)).map(r=>r.name));
+  if(regChanged.size)renderRegistry();
+  setTimeout(()=>{regChanged=new Set()},4000);
+  const parts_=[];
+  if(!regSame){const x=[];if(added)x.push('+'+added+' yeni');if(changed)x.push(changed+' dəyişiklik');if(removed)x.push('−'+removed+' çıxarıldı');parts_.push('Reyestr'+(x.length?' ('+x.join(', ')+')':''))}
+  parts_.push(...changedSecs);
+  return {same:!parts_.length,summary:parts_.length?parts_.join(' · '):REG.length+' şirkət, '+FAQ.length+' sual'};
+}
+let toastT;
+function toast(title,sub){const t=$('#toast');t.innerHTML=`<b>${esc(title)}</b>${sub?esc(sub):''}`;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),5000)}
+const hm=d=>String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+const hms=d=>hm(d)+':'+String(d.getSeconds()).padStart(2,'0');
+function setSync(patch){Object.assign(xlState,patch);renderSync()}
+function renderSync(){
+  const s=xlState,el=$('#sync');let title,sub,btn='Excel faylını qoş',unlink=false,foot='daxili',dot=s.mode;
+  const fm=s.mod?`Faylın tarixi: ${fd(new Date(s.mod))} ${hm(new Date(s.mod))}`:'';
+  const at=s.at?`Son yeniləmə: ${hms(new Date(s.at))}`:'';
+  const fnd=s.found&&s.found.length&&s.mode!=='embedded'?` · Oxunan vərəqlər: ${s.found.length}`:'';
+  switch(s.mode){
+    case 'live':title=`Canlı əlaqə: ${s.name}`;sub=`Excel-də dəyişib yadda saxlayın (Ctrl+S) — sayt ${XL.livePoll/1000} saniyə ərzində özü yenilənir · ${at} · ${fm}${fnd}`;btn='Başqa fayl seç';unlink=true;foot='Excel · canlı';break;
+    case 'server':title=`Mənbə: ${XL.file} (server)`;sub=`HTML ilə eyni qovluqdakı fayl hər ${XL.serverPoll/1000} saniyədən bir yoxlanılır · ${at}${fm?' · '+fm:''}${fnd}`;btn='Yerli faylı qoş';foot='Excel · server';break;
+    case 'reconnect':dot='cached';title=`Əlaqə dayandırılıb: ${s.name}`;sub=`Brauzer faylı yenidən oxumaq üçün icazə istəyir — “Bağlantını bərpa et” düyməsini basın. Hələlik son yadda saxlanmış məlumat göstərilir${fm?' ('+fm.toLowerCase()+')':''}.`;btn='Bağlantını bərpa et';unlink=true;foot='Excel · yaddaşdan';break;
+    case 'cached':title=`Mənbə: ${s.name} — yadda saxlanmış surət`;sub=`Son yüklənmiş Excel məlumatı göstərilir${fm?' · '+fm:''}. Yeniləmək üçün faylı yenidən qoşun.`;unlink=true;foot='Excel · yaddaşdan';break;
+    case 'once':title=`Mənbə: ${s.name} (bir dəfəlik yükləmə)`;sub=`Bu brauzer faylı canlı izləyə bilmir — Excel-də dəyişiklikdən sonra faylı yenidən seçin və ya Chrome / Edge istifadə edin · ${at}${fnd}`;btn='Faylı yenidən yüklə';unlink=true;foot='Excel · bir dəfəlik';break;
+    default:dot='embedded';title='Mənbə: HTML-ə daxil edilmiş məlumat';sub=`Saytdakı bütün məlumatları Excel-dən idarə etmək üçün “Excel faylını qoş” düyməsini basın və ya ${XL.file} faylını bu səhifəyə sürükləyin.`;
+  }
+  sub=esc(sub);
+  if(s.warn&&s.warn.length)sub+=`<br><span style="color:var(--warn-ink)">⚠ Reyestrdə ${s.warn.length} sətirdə qeydiyyat tarixi boş və ya səhvdir: ${s.warn.slice(0,3).map(esc).join(', ')}${s.warn.length>3?'…':''}</span>`;
+  if(s.err){sub+=`<br><span style="color:var(--crit-ink);font-weight:600">${esc(s.err)}</span>`;if(s.mode==='embedded')dot='error'}
+  el.dataset.s=dot;$('#adminDot').dataset.s=dot;$('#syncTitle').textContent=title;$('#syncSub').innerHTML=sub;
+  $('#xlLink').textContent=btn;$('#xlUnlink').hidden=!unlink;
+  $('#footSrc').textContent=foot;$('#footDot').dataset.s=dot;$('#xlLink2').textContent=btn;
+}
+function saveCache(parts){try{localStorage.setItem(XL.cacheKey,JSON.stringify({parts,name:xlState.name,mod:xlState.mod,found:xlState.found}))}catch(e){}}
+function loadCache(){try{const c=JSON.parse(localStorage.getItem(XL.cacheKey)||'null');return c&&c.parts&&typeof c.parts==='object'&&Object.entries(c.parts).every(([k,v])=>k in DEF&&Array.isArray(v)&&v.every(Array.isArray))?c:null}catch(e){return null}}
+function clearCache(){try{localStorage.removeItem(XL.cacheKey)}catch(e){}}
+const idb=(()=>{let p;const open=()=>p||(p=new Promise((res,rej)=>{const r=indexedDB.open('rvn-excel',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}));
+  const tx=(mode,fn)=>open().then(db=>new Promise((res,rej)=>{const t=db.transaction('kv',mode);const rq=fn(t.objectStore('kv'));t.oncomplete=()=>res(rq.result);t.onerror=()=>rej(t.error)}));
+  return {get:k=>tx('readonly',s=>s.get(k)),set:(k,v)=>tx('readwrite',s=>s.put(v,k)),del:k=>tx('readwrite',s=>s.delete(k))};
+})();
+function hashBuf(buf){let h=0x811c9dc5;const u=new Uint8Array(buf);for(let i=0;i<u.length;i++){h^=u[i];h=Math.imul(h,16777619)}return (h>>>0).toString(16)+':'+u.length}
+
+/* ---------- Mənbələr ---------- */
+const FSA='showOpenFilePicker' in window;
+let liveH=null,liveTimer=null,liveSig='',liveBusy=false,pendingH=null,srvTimer=null,srvSig='';
+function stopAll(){clearInterval(liveTimer);clearInterval(srvTimer);liveTimer=srvTimer=null;liveH=null;liveSig='';srvSig=''}
+async function startLive(h){
+  stopAll();pendingH=null;liveH=h;
+  try{await idb.set('handle',h)}catch(e){}
+  await liveTick(true);
+  liveTimer=setInterval(()=>{if(document.visibilityState==='visible')liveTick()},XL.livePoll);
+}
+async function liveTick(first){
+  if(liveBusy||!liveH)return;liveBusy=true;const h=liveH;
+  try{
+    const f=await h.getFile();const sig=f.lastModified+':'+f.size;
+    if(sig===liveSig)return;
+    const {parts,warn,found}=await xlParse(await f.arrayBuffer());
+    if(h!==liveH)return;
+    liveSig=sig;
+    const r=applyParts(parts);
+    setSync({mode:'live',name:f.name,mod:f.lastModified,at:Date.now(),warn,err:'',found});saveCache(parts);
+    if(first)toast('Excel faylı qoşuldu',`${found.length} vərəq oxundu · `+r.summary);else if(!r.same)toast('Sayt Excel-dən yeniləndi',r.summary);
+  }catch(e){
+    if(e&&e.name==='NotAllowedError'){stopAll();pendingH=h;setSync({mode:'reconnect',name:h.name,err:''});return}
+    const msg=e&&e.name==='NotFoundError'?'Fayl tapılmadı — adı dəyişdirilib və ya silinib? Faylı yenidən qoşun.':'Fayl oxunmadı ('+(e&&e.message||e)+'). Yenidən cəhd edilir…';
+    setSync({mode:'live',name:h.name,err:msg});
+  }finally{liveBusy=false}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(liveH)liveTick();if(srvTimer)serverTick()}});
+async function loadOnce(file){
+  try{
+    const {parts,warn,found}=await xlParse(await file.arrayBuffer());
+    stopAll();pendingH=null;try{await idb.del('handle')}catch(e){}
+    const r=applyParts(parts);
+    setSync({mode:'once',name:file.name,mod:file.lastModified,at:Date.now(),warn,err:'',found});saveCache(parts);
+    toast('Excel faylı yükləndi',`${found.length} vərəq oxundu · `+r.summary);
+  }catch(e){setSync({err:'Excel faylı oxunmadı: '+(e.message||e)});toast('Excel faylı oxunmadı',e.message||'')}
+}
+async function serverTick(first){
+  try{
+    const res=await fetch(XL.file+'?_='+Date.now(),{cache:'no-store'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const buf=await res.arrayBuffer();const sig=hashBuf(buf);
+    if(sig===srvSig){setSync({at:Date.now(),err:''});return true}
+    const {parts,warn,found}=await xlParse(buf);
+    srvSig=sig;const lm=Date.parse(res.headers.get('Last-Modified')||'');
+    const r=applyParts(parts,{silent:first});
+    setSync({mode:'server',name:XL.file,mod:isNaN(lm)?0:lm,at:Date.now(),warn,err:'',found});
+    if(!first&&!r.same)toast(IS_ADMIN?'Sayt Excel-dən yeniləndi':'Məlumatlar yeniləndi',r.summary);
+    return true;
+  }catch(e){
+    if(!first)setSync({err:'Server faylı oxunmadı ('+(e.message||e)+') — son məlumat göstərilir'});
+    return false;
+  }
+}
+async function startServer(){
+  if(location.protocol==='file:')return false;   // yerli faylda brauzer bu sorğunu bloklayır
+  if(!(await serverTick(true)))return false;
+  srvTimer=setInterval(()=>{if(document.visibilityState==='visible')serverTick()},XL.serverPoll);
+  return true;
+}
+async function pickExcel(){
+  if(pendingH){
+    try{if(await pendingH.requestPermission({mode:'read'})==='granted')return startLive(pendingH)}catch(e){}
+    return;
+  }
+  if(FSA){
+    try{const [h]=await window.showOpenFilePicker({id:'rvn-excel',multiple:false,types:[{description:'Excel iş kitabı',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]});return startLive(h)}
+    catch(e){if(e&&e.name==='AbortError')return}
+  }
+  $('#xlFile').click();
+}
+$('#xlLink').onclick=pickExcel; $('#xlLink2').onclick=pickExcel;
+$('#xlFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)loadOnce(f)};
+$('#xlUnlink').onclick=async()=>{
+  stopAll();pendingH=null;try{await idb.del('handle')}catch(e){}clearCache();
+  applyParts(null,{silent:true});setSync({mode:'embedded',name:'',mod:0,at:0,warn:[],err:'',found:[]});
+  if(!(await startServer()))toast('Excel ilə əlaqə kəsildi','HTML-ə daxil edilmiş məlumat göstərilir');
+};
+let dragN=0;const hasFiles=e=>IS_ADMIN&&e.dataTransfer&&[...e.dataTransfer.types].includes('Files');   // sürükləmə yalnız idarəetmə rejimində
+addEventListener('dragenter',e=>{if(hasFiles(e)){dragN++;$('#drop').classList.add('on')}});
+addEventListener('dragleave',e=>{if(hasFiles(e)&&--dragN<=0){dragN=0;$('#drop').classList.remove('on')}});
+addEventListener('dragover',e=>{if(hasFiles(e))e.preventDefault()});
+addEventListener('drop',async e=>{
+  if(!hasFiles(e))return;e.preventDefault();dragN=0;$('#drop').classList.remove('on');
+  const file=e.dataTransfer.files[0];
+  const item=[...e.dataTransfer.items].find(i=>i.kind==='file');
+  const hp=item&&item.getAsFileSystemHandle?item.getAsFileSystemHandle():null;   // hadisə daxilində çağırılmalıdır
+  if(!file||!/\.xlsx$/i.test(file.name)){toast('Yalnız .xlsx faylı qəbul olunur','');return}
+  if(hp){try{const h=await hp;if(h&&h.kind==='file')return startLive(h)}catch(err){}}
+  loadOnce(file);
+});
+/* ============================== taxes.gov.az İLƏ AVTOMATİK UZLAŞMA ==============================
+   GitHub hər saat rəsmi səhifəni yoxlayır və nəticəni data/taxes.json faylına yazır (bax: scripts/taxes_sync.py).
+   Sayt bu faylı açılışda və hər 10 dəqiqədən bir oxuyub öz məlumatının üzərinə tətbiq edir:
+   • Reyestr — rəsmi siyahı əsasdır; trademark və fəaliyyət istiqaməti saytın öz məlumatından (və ya Excel-dən) götürülür.
+   • Sual-cavab — rəsmi mətni dəyişməyən suallar saytdakı sadələşdirilmiş mətnlə, dəyişən və yeni suallar rəsmi mətnlə göstərilir.
+   • Rəqəmlər — dövriyyə həddi, ƏDV dərəcəsi, məcburi uçot tarixi, müddətlər, valyutalar, e-poçt, linklər.
+   Sayt GitHub Pages-də deyil, başqa hostinqdədirsə, url-i tam ünvanla əvəz edin:
+       url:'https://İSTİFADƏÇİ-ADI.github.io/REPO-ADI/data/taxes.json' */
+const TAXES={url:'data/taxes.json',poll:10*60*1000};
+const COUNTRY_SHORT={'Amerika Birləşmiş Ştatları':'ABŞ','Birləşmiş Ərəb Əmirlikləri':'BƏƏ'};
+let OFFICIAL=null,offSig='',offTimer=null;
+const offState={err:''};
+function overlayOfficial(next,O){
+  const key=s=>xlNorm(s).replace(/[^a-z0-9]/g,'');
+  if(Array.isArray(O.reg)&&O.reg.length){
+    const own=new Map(next.reg.map(r=>[key(r[1]),r]));
+    next.reg=O.reg.map(([n,name,country,date])=>{const b=own.get(key(name));return [n,name,b?b[2]:'',b?b[3]:'',COUNTRY_SHORT[country]||country||'—',date||(b?b[5]:'')]});
+  }
+  if(Array.isArray(O.faq)&&O.faq.length){
+    const own=next.faq,gmap={};
+    O.faq.forEach(f=>{if(f.base!=null&&own[f.base]&&!gmap[f.g])gmap[f.g]=own[f.base][0]});
+    next.faq=O.faq.map(f=>f.base!=null&&own[f.base]?own[f.base]:[gmap[f.g]||f.g,f.q,f.a]);
+  }
+  if(Array.isArray(O.params)&&O.params.length){
+    const ps=next.params.map(r=>r.slice());
+    O.params.forEach(([k,v])=>{const r=ps.find(p=>String(p[0]).toUpperCase()===k);if(r)r[2]=v;else ps.push([k,k,v,''])});
+    next.params=ps;
+  }
+}
+async function loadOfficial(first){
+  if(location.protocol==='file:'){offState.err='Səhifə kompüterdən açılıb — rəsmi məlumat yalnız saytda (serverdə) yüklənir.';renderOff();return}
+  try{
+    const res=await fetch(TAXES.url+(TAXES.url.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const txt=await res.text();offState.err='';
+    if(txt!==offSig){
+      const o=JSON.parse(txt);
+      if(!o||!Array.isArray(o.reg)||!o.reg.length)throw new Error('fayl formatı səhvdir');
+      offSig=txt;OFFICIAL=o;
+      const r=applyParts(curParts,{silent:first});
+      if(!first&&!r.same)toast(IS_ADMIN?'taxes.gov.az-dan yeniləndi':'Məlumatlar yeniləndi',r.summary);
+    }
+  }catch(e){offState.err='Rəsmi məlumat faylı oxunmadı ('+(e.message||e)+')'+(OFFICIAL?' — son yüklənən göstərilir.':' — daxili məlumat göstərilir.')}
+  renderOff();
+}
+function renderOff(){
+  const O=OFFICIAL,iso=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'');
+  const days=O&&iso(O.checked)?Math.round((TODAY-pd(O.checked))/864e5):null;
+  let dot='embedded',h='<b>taxes.gov.az ilə avtomatik uzlaşma</b>';
+  if(O){
+    dot=days>2?'cached':'live';
+    const fresh=Array.isArray(O.faq)?O.faq.filter(f=>f.base==null).length:0;
+    h+=`Son yoxlama: ${iso(O.checked)?fd(pd(O.checked)):'—'} · son dəyişiklik: ${iso(O.changed)?fd(pd(O.changed)):'—'} · ${O.reg.length} şirkət · ${(O.faq||[]).length} sual${fresh?` (${fresh}-i rəsmi mətnlə)`:''}`;
+    if(days>2)h+=`<br><span style="color:var(--warn-ink)">⚠ ${days} gündür yoxlanılmayıb — GitHub-da “Actions” bölməsinə baxın.</span>`;
+    (O.warnings||[]).forEach(w=>h+=`<br><span style="color:var(--warn-ink)">⚠ ${esc(w)}</span>`);
+  }else if(!offState.err)h+='Yüklənir…';
+  if(offState.err){h+=`${O?'<br>':''}<span style="color:var(--crit-ink)">${esc(offState.err)}</span>`;if(!O)dot='error'}
+  $('#offStatus').innerHTML=`<i class="fdot" data-s="${dot}"></i><div>${h}</div>`;
+}
+async function startOfficial(){
+  await loadOfficial(true);
+  if(location.protocol!=='file:')offTimer=setInterval(()=>{if(document.visibilityState==='visible')loadOfficial()},TAXES.poll);
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&offTimer)loadOfficial()});
+
+/* ---------- İdarəetmə paneli ---------- */
+const AP=$('#adminPanel');
+function syncMin(){const m=AP.classList.contains('min');$('#adminMin').textContent=m?'+':'–';$('#adminMin').title=m?'Paneli aç':'Paneli kiçilt';$('#adminMin').setAttribute('aria-label',$('#adminMin').title)}
+try{if(localStorage.getItem('rvn-admin-min')==='1')AP.classList.add('min')}catch(e){}
+syncMin();
+$('#adminMin').onclick=()=>{AP.classList.toggle('min');try{localStorage.setItem('rvn-admin-min',AP.classList.contains('min')?'1':'0')}catch(e){}syncMin()};
+$('#adminExit').onclick=()=>{stopAll();try{localStorage.removeItem(ADMIN_STORE)}catch(e){}location.reload()};
+/* Hazırkı məlumatı (Excel-dən gələn daxil) HTML-in “site-data” blokuna yazıb yeni fayl kimi yükləyir */
+$('#xlExport').onclick=()=>{
+  const tag='id="site-data">',i=SRC_HTML.indexOf(tag),j=i<0?-1:SRC_HTML.indexOf('<\/script>',i);
+  if(j<0){toast('HTML yaradılmadı','Məlumat bloku tapılmadı');return}
+  const json='{\n'+Object.entries(D).map(([k,v])=>JSON.stringify(k)+':[\n'+v.map(r=>JSON.stringify(r)).join(',\n')+'\n]').join(',\n')+'\n}';
+  const out=SRC_HTML.slice(0,i+tag.length)+'\n'+json.replace(/</g,'\\u003c')+'\n'+SRC_HTML.slice(j);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out],{type:'text/html;charset=utf-8'}));
+  a.download=decodeURIComponent(location.pathname.split('/').pop()||'')||'index.html';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  toast('HTML faylı hazırdır',REG.length+' şirkət, '+FAQ.length+' sual daxil edildi');
+};
+
+async function initExcel(){
+  renderSync();
+  if(!IS_ADMIN){await startServer();return}   // ziyarətçi: yalnız serverdəki Excel faylı (yoxdursa — daxili məlumat)
+  const c=loadCache();
+  if(c){applyParts(c.parts,{silent:true});setSync({mode:'cached',name:c.name||XL.file,mod:c.mod||0,found:c.found||[]})}
+  let h=null;if(FSA){try{h=await idb.get('handle')}catch(e){}}
+  if(h){
+    try{if(await h.queryPermission({mode:'read'})==='granted')return startLive(h)}catch(e){}
+    pendingH=h;setSync({mode:'reconnect',name:h.name});
+  }
+  await startServer();
+}
+
+/* ============================== INIT ============================== */
+renderAll();
+initExcel();
+startOfficial();
+</script>
+</body>
+</html>

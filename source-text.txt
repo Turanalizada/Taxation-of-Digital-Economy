@@ -1,0 +1,127 @@
+Nazirlər Kabinetinin 30.10.2023-cü il tarixli, 387 №-li qərarı
+"İnternet informasiya ehtiyatı vasitəsilə elektron ticarəti həyata keçirən qeyri-rezidentin elektron qaydada vergi uçotuna alınması, yenidən uçota alınması və uçotdan çıxarılması Qaydası" (Nazirlər Kabinetinin 30.10.2023-cü il tarixli 387 №-li qərarı ilə təsdiq edilmişdir)
+ƏDV Portal barədə məlumat
+Məlum olduğu kim, iqtisadiyyatın rəqəmsallaşması nəticəsində sürətlə inkişaf edən elektron ticarətin şəffaf və qanunamüvafiq şəkildə vergiyə cəlb olunması, verginin əsas iqtisadi fəaliyyətin həyata keçirildiyi və dəyərin yarandığı ölkədə tutulması məqsədilə Vergi Məcəlləsində dəyişikliklər edilərək 33.8-1-ci və 169.8-ci maddələr əlavə edilmişdir.
+Bundan irəli gələrək, "İnternet informasiya ehtiyatı vasitəsilə elektron ticarəti həyata keçirən qeyri-rezidentin elektron qaydada vergi uçotuna alınması, yenidən uçota alınması və uçotdan çıxarılması Qaydası" Nazirlər Kabinetinin 30.10.2023-cü il tarixli 387 №-li qərarı ilə təsdiq edilmişdir.
+Qaydanın 2.1-ci bəndində nəzərdə tutulan, İqtisadi Əməkdaşlıq və İnkişaf Təşkilatının (OECD) təlimatlarında müəyyən olunmuş tövsiyələri əhatə edən, daxili bazarda fiziki mövcudluğu olmadan rəqəmsal iqtisadiyyat sahəsində fəaliyyət göstərən subyektlərin vergiyə cəlb edilməsinin səmərəliliyini artıran, habelə qabaqcıl ölkələrin təcrübələri nəzərə alınmaqla, elektron ticarət qaydasında vergi orqanlarında uçotda olmayan şəxslər tərəfindən aparılan əməliyyatlara tətbiq edilməsi istiqamətində Platforma Dövlət Vergi Xidməti tərəfindən hazırlanmışdır.
+Bununla əlaqədar, Dövlət Vergi Xidmətinin İnternet Vergi İdarəsində yaradılmış platforma vasitəsilə elektron ticarəti həyata keçirən qeyri-rezidentin uçota alınmasına başlanılmışdır.
+Qeyri-rezidentin uçota alınması bu sayt vasitəsilə həyata keçirilir: https://ecommerce.e-taxes.gov.az
+Uçota alınma zamanı yarana biləcək suallar və xətalar barədə ecommerce@taxes.gov.az e-mail ünvanına müraciət edilə bilərsiniz.
+ƏDV-nin ödənilməsi üçün təlimatlar
+Instructions of Payment for VAT on Digital Services (PDF, 234 Kb)
+Azərbaycan Respublikasında elektron qaydada uçota alınmış rəqəmsal xidmət təqdim edən qeyri-rezidentlərin siyahısı
+| № | ŞİRKƏTİN ADI | ÖLKƏ | QEYDİYYAT TARİXİ
+| 1 | Apple Distribution International Limited | İrlandiya | 01.12.2024
+| 2 | Adobe Systems Software Ireland Limited | İrlandiya | 01.03.2025
+| 3 | Sony Interactive Entertainment Network Europe Limited | Birləşmiş Krallıq | 01.04.2025
+| 4 | Elsevier BV | Niderland | 01.07.2025
+| 5 | Hyperconnect LLC | Cənubi Koreya | 01.07.2025
+| 6 | Tinder LLC | Amerika Birləşmiş Ştatları | 01.07.2025
+| 7 | PPG DIGITAL SP. Z O.O. | Polşa | 01.10.2025
+| 8 | Epic Games Commerce GmbH | İsveçrə | 01.03.2026
+| 9 | Contabo GmbH | Almaniya | 01.03.2026
+| 10 | Chess.Com LLC | Amerika Birləşmiş Ştatları | 01.05.2026
+| 11 | Xsolla (USA), Inc. | Amerika Birləşmiş Ştatları | 01.07.2026
+| 12 | Formula One Digital Media Limited | Birləşmiş Krallıq | 01.08.2026
+| 13 | Valve Corporation | Amerika Birləşmiş Ştatları | 01.09.2026
+| 14 | Cleverbridge GmbH | Almaniya |
+01.09.2026
+| 15 | Aghanim Inc | Amerika Birləşmiş Ştatları | 01.09.2026
+| 16 | Netflix International B.V. | Niderland | 01.09.2026
+| 17 | ANTHROPIC, PBC | Amerika Birləşmiş Ştatları | 01.09.2026
+| 18 | EBAY MARKETPLACES GMBH | İsveçrə | 01.09.2026
+| 19 | Zoho Corporation B.V. | Niderland | 01.09.2026
+| 20 | Zoom Communications, Inc. | Amerika Birləşmiş Ştatları | 01.09.2026
+| 21 | OpenAI OpCo, LLC | Amerika Birləşmiş Ştatları | 01.09.2026
+| 22 | Spotify AB | İsveç | 01.10.2026
+| 23 | TikTok Pte. Ltd. | Sinqapur | 01.10.2026
+| 24 | Appcharge Ltd. | İsrail | 01.11.2026
+Tez-tez verilən suallar
+I. Rəqəmsal xidmətlər üzrə ƏDV
+1. Elektron ticarət qaydasında rəqəmsal xidmət göstərən qeyri-rezidentlər kimlərdir?
+Qeyri-rezidentlər internet vasitəsilə rəqəmsal xidmətlər təqdim edən şəxslərdir.
+Rəqəmsal xidmətlərə aşağıdakılar daxildir:
+internet informasiya ehtiyatı vasitəsilə rəqəmsal xidmətlərin göstərilməsi;
+elektron kitabların (e-book) təqdim edilməsi və ya yüklənməsi;
+musiqinin təqdim edilməsi və ya yüklənməsi;
+audio və video materialların təqdim edilməsi və ya yüklənməsi;
+qrafik təsvirlərin təqdim edilməsi və ya yüklənməsi;
+virtual oyunların təqdim edilməsi və ya yüklənməsi;
+proqram təminatlarının təqdim edilməsi və ya yüklənməsi;
+reklamların yerləşdirilməsi, yayımı və idarə olunması;
+rəqəmsal mühitdə təqdim edilən digər analoji elektron xidmətlərin təqdim edilməsi.
+Rəqəmsal xidmətlər internet üzərindən avtomatlaşdırılmış şəkildə və minimal insan müdaxiləsi ilə təqdim olunan xidmətlər hesab olunur.
+2. Elektron ticarəti həyata keçirən qeyri-rezidentlər göstərdikləri rəqəmsal xidmətləri kimlərə təqdim edirlər?
+Elektron ticarəti həyata keçirən qeyri-rezidentlər internet informasiya ehtiyatı vasitəsilə göstərdikləri iş və xidmətləri Azərbaycan Respublikasında vergi orqanlarında uçotda olmayan şəxslərə, yəni son istehlakçılara təqdim edirlər.
+3. Bu qaydalar B2B (Business-to-Business) əməliyyatlarına şamil olunurmu?
+Xeyr. Bu qaydalar yalnız B2C (Business-to-Consumer) əməliyyatlarına tətbiq edilir. B2B əməliyyatlarına münasibətdə isə ƏDV öhdəliyi yerli alıcı tərəfindən əks ödəniş mexanizmi (reverse charge) ilə yerinə yetirilir.
+Qeyri-rezidentlər əməliyyatın B2B olub-olmadığını müəyyən etmək üçün alıcı tərəfindən təqdim edilən vergi nömrəsi və ya digər biznes identifikasiya məlumatlarına istinad edə bilərlər.
+4. Rəqəmsal xidmətlər hesab edilməyən hansı xidmətlərdir?
+Aşağıdakı xidmətlər elektron ticarət qaydasında təqdim edilən xidmətlər hesab edilmir:
+Elektron poçt və digər interaktiv ünsiyyət vasitələri ilə göstərilən: məsləhət xidmətləri; hüquq xidmətləri; maliyyə və mühasibat xidmətləri; dizayn və mühəndis xidmətləri;
+İnternet vasitəsilə real vaxt rejimində keçirilən tədris və təlim xidmətləri;
+Elm, təhsil, mədəniyyət, idman və əyləncə tədbirləri üçün biletlərin onlayn sifarişi.
+5. Qeyri-rezidentlər üçün dövriyyə həddi varmı və bu hədd hansı hallarda tətbiq olunur?
+Bəli. İnternet informasiya ehtiyatları vasitəsilə elektron ticarət qaydasında Azərbaycan Respublikasında yerləşən fiziki şəxslərə (istehlakçılara) rəqəmsal xidmətlər təqdim edən qeyri-rezidentlərin bu fəaliyyət üzrə təqvim ili ərzində əldə etdiyi dövriyyə 10 000 ABŞ dollarının manat ekvivalentini aşdığı halda, onlar vergi uçotuna alınmalıdır. Bu hədd yalnız B2C əməliyyatlara şamil edilir. Bu həddə çatmayan qeyri-rezidentlər könüllü qaydada qeydiyyatdan keçə bilərlər.
+6. Məcburi qeydiyyat nə vaxtdan tətbiq olunur?
+Məcburi ƏDV qeydiyyatı 1 sentyabr 2026-cı il tarixindən qüvvəyə minir. Bu tarixədək qeydiyyat könüllü xarakter daşıyır.
+7. Alıcının Azərbaycanda yerləşməsi necə müəyyən olunur?
+Alıcının Azərbaycanda yerləşməsi aşağıdakı göstəricilər əsasında müəyyən edilir:
+ödənişin Azərbaycan Respublikası bankı və ya ödəniş xidməti təminatçısı vasitəsilə həyata keçirilməsi;
+IP ünvanının Azərbaycana aid olması;
+mobil operator kodunun (+994) olması;
+yaşayış və ya qeydiyyat ünvanının Azərbaycan Respublikasında yerləşməsi.
+8. Vergi uçotuna alınmaq üçün müəyyən edilmiş müddət nə qədərdir?
+Qeyri-rezidentin dövriyyəsi müəyyən edilmiş həddi keçdikdən (10 000 ABŞ dolları) sonra 30 gün ərzində elektron qaydada vergi uçotuna alınması tələb olunur. Bu tələb 1 sentyabr 2026-cı il tarixindən tətbiq edilir.
+9. Bu Qayda kimlərə şamil edilmir?
+Azərbaycan Respublikasında daimi nümayəndəlik vasitəsilə fəaliyyət göstərən qeyri-rezidentlərə şamil edilmir.
+II. Rəqəmsal xidmətlər üzrə ƏDV portalı
+1. Qeyri-rezidentlərin vergi uçotu necə aparılır?
+Qeyri-rezidentlər Dövlət Vergi Xidmətinin İnternet Vergi İdarəsində yaradılmış platforma vasitəsilə ƏDV məqsədləri üçün elektron qaydada vergi uçotuna alınır və bəyannamələrin təqdim edilməsi platforma vasitəsilə həyata keçirilir.
+2. Qeydiyyat üçün hansı sənədlər tələb olunur?
+qeyri-rezidentin qeydiyyata alındığı dövlətdə qeydiyyat (inkorporasiya) və ya vergi uçotu sənədi;
+məsul şəxsin təyin edilməsini təsdiq edən sənəd (qərar, əmək müqaviləsi və s.).
+3. Qeydiyyat üçün hansı məlumatlar təqdim olunur?
+Qeyri-rezidentin adı, rezident olduğu ölkə, hüquqi və faktiki ünvan, rəsmi internet səhifəsi, elektron poçt ünvanı, qeydiyyat və vergi uçotu sənədlərinin nömrəsi, əsas fəaliyyət sahəsi, ödəniş valyutası, fəaliyyətə başlama tarixi, məsul şəxslər barədə məlumat (azı 2 nəfər).
+4. Qeydiyyat nə qədər müddətə başa çatır?
+Vergi orqanı təqdim edilmiş məlumat və sənədləri 20 iş günü ərzində yoxlayır və həmin məlumat və sənədlərdə kənarlaşma olmadıqda qeydiyyat həyata keçirilir.
+5. Elektron ticarəti həyata keçirən qeyri-rezidentlərdən bank məlumatları nə üçün tələb olunur?
+Bank məlumatları ƏDV-nin düzgün və effektiv inzibatçılığını təmin etmək və qeydiyyatdan keçmiş qeyri-rezidentlərə münasibətdə verginin ikiqat tutulmasının qarşısını almaq məqsədilə tələb olunur.
+6. Elektron ticarəti həyata keçirən qeyri-rezidentlər portalda qeydiyyatdan keçərkən bank məlumatlarını təqdim etməlidirlərmi?
+Bəli. Aşağıdakı bank məlumatları təqdim etməlidirlər:
+Acquirer – Ödənişi qəbul edən bankın və ya ödəniş xidməti təminatçısının adı;
+MCC (Merchant Category Code) – Ticarət fəaliyyətinin növünü müəyyən edən dörd rəqəmli kod;
+Scheme – Ödəniş kartı şəbəkəsi (məsələn, Visa, MasterCard və s.);
+Merchant ID – Ticarət subyektinə (merchant) verilmiş unikal identifikasiya nömrəsi (15 rəqəmdən ibarət);
+Acquirer ID – Ödənişi qəbul edən qurumun identifikasiya nömrəsi;
+Acquirer Country – Acquirer-in qeydiyyatda olduğu ölkə.
+7. Portalda qeydiyyat zamanı seçilmiş valyutanı sonradan dəyişdirmək mümkündürmü?
+Xeyr. Valyuta seçimi həyata keçirildikdən sonra onun dəyişdirilməsi nəzərdə tutulmur.
+8. Hansı hallarda qeydiyyatdan imtina edilə bilər?
+Qanunla qadağan olunmuş fəaliyyət həyata keçirildikdə, yanlış məlumat təqdim edildikdə və ya müəyyən edilmiş tələblərə uyğunluq olmadıqda.
+III. ƏDV bəyannaməsinin təqdim edilməsi və ƏDV-nin ödənilməsi
+1. ƏDV bəyannaməsi necə təqdim olunur?
+ƏDV bəyannaməsi platforma vasitəsilə elektron qaydada təqdim olunur.
+2. ƏDV üzrə hesabat dövrü hansı müddəti əhatə edir?
+ƏDV üzrə hesabat dövrü aylıqdır.
+3. ƏDV bəyannaməsi nə vaxt təqdim edilməlidir?
+Hesabat dövründən sonrakı ayın 20-dən gec olmayaraq.
+4. Uçota alınan qeyri-rezidentlər ƏDV-ni hansı müddətdə büdcəyə ödəməlidirlər?
+Uçota alınan qeyri-rezident şəxslər ƏDV-ni hər hesabat dövrü üçün hesabat dövründən sonrakı ayın sonuncu günündən gec olmayaraq büdcəyə ödəməlidirlər.
+5. ƏDV bəyannaməsinin forması necədir?
+ƏDV bəyannaməsi sadə və istifadəçi dostu formada hazırlanmışdır. Qeyri-rezidentlərin vergi öhdəliklərini asan və operativ şəkildə yerinə yetirmələri üçün minimal məlumat tələbləri (ümumi dövriyyə və hesablanmış ƏDV) əsasında elektron qaydada təqdim edilir.
+6. ƏDV dərəcəsi nə qədərdir?
+ƏDV dərəcəsi 18 faizdir.
+7. Ödəniş hansı valyutada aparıla bilər?
+Ödəniş qeydiyyat zamanı seçilmiş valyutaya uyğun olaraq aşağıdakı valyutalarda həyata keçirilə bilər:
+Azərbaycan manatı (AZN) ABŞ dolları (USD) avro (EUR) funt sterlinq (GBP)
+8. Qeyri-rezidentin əsas öhdəlikləri hansılardır?
+ƏDV bəyannaməsini vaxtında təqdim etmək və vergiləri ödəmək;
+Qeydiyyat məlumatlarında dəyişiklik olarsa, 20 iş günü ərzində bildirmək;
+Təqdim olunan məlumatların düzgünlüyünə cavabdeh olmaq.
+9. Səhv göndərilmiş bəyannaməni yenidən təqdim etmək mümkündürmü?
+Səhv və ya uyğunsuzluq aşkar edildikdə həmin dövr üzrə dəqiqləşdirilmiş bəyannamə yenidən təqdim edilə bilər.
+10. ƏDV hansı hesaba ödənilir?
+Azərbaycan Respublikasında vergilərin ödənilməsi ilə bağlı ödənişlərin köçürüləcəyi hesaba dair ətraflı məlumatlar Dövlət Vergi Xidmətinin rəsmi internet səhifəsində əks etdirilir.
+11. Əlavə suallar üçün kimə müraciət etmək olar?
+Platformadan istifadə və ya qeydiyyat zamanı suallar və texniki problemlərlə bağlı aşağıdakı ünvan vasitəsilə əlaqə saxlamaq mümkündür: ecommerce@taxes.gov.az

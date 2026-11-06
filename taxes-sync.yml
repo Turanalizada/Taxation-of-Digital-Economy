@@ -1,0 +1,90 @@
+# taxes.gov.az səhifəsini hər saat yoxlayır.
+# Dəyişiklik olarsa data/taxes.json yenilənir, sayt GitHub Pages-də
+# yenidən dərc olunur və sizə bildiriş (Issue + e-poçt) gəlir. Əl ilə heç nə etmək lazım deyil.
+# Əl ilə yoxlamaq istəsəniz: Actions → bu iş axını → "Run workflow".
+name: taxes.gov.az avtomatik yeniləmə
+
+on:
+  schedule:
+    - cron: "17 * * * *"        # hər saat (UTC vaxtı ilə :17-də)
+  push:
+    branches: [main]             # faylları dəyişəndə sayt dərhal yenidən dərc olunur
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: taxes-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.flags.outputs.deploy }}
+      error: ${{ steps.sync.outputs.error }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: taxes.gov.az səhifəsini oxu
+        id: sync
+        run: python3 scripts/taxes_sync.py
+
+      - name: Yenilənmiş məlumatı yadda saxla
+        if: steps.sync.outputs.updated == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git commit -m "taxes.gov.az: məlumat yeniləndi ($(date -u +%F))"
+          git pull --rebase --autostash
+          git push
+
+      - name: Dəyişiklik barədə bildiriş
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue create --title "taxes.gov.az səhifəsində dəyişiklik — $(date -u +%d.%m.%Y)" --body-file change.md
+
+      - name: Dərc etmək lazımdırmı?
+        id: flags
+        run: echo "deploy=${{ steps.sync.outputs.updated == 'true' || github.event_name != 'schedule' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Sayt fayllarını hazırla
+        if: steps.flags.outputs.deploy == 'true'
+        run: |
+          mkdir -p _site/data
+          cp index.html _site/
+          cp data/taxes.json _site/data/
+          if [ -f qeyri-rezidentler-reyestri.xlsx ]; then cp qeyri-rezidentler-reyestri.xlsx _site/; fi
+
+      - uses: actions/upload-pages-artifact@v5
+        if: steps.flags.outputs.deploy == 'true'
+        with:
+          path: _site
+
+  deploy:
+    needs: sync
+    if: needs.sync.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
+  # taxes.gov.az səhifəsinin quruluşu kökündən dəyişsə, köhnə məlumat saxlanılır və
+  # bu addım "uğursuz" olur — GitHub sizə e-poçtla xəbər verir.
+  alert:
+    needs: sync
+    if: needs.sync.outputs.error == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "::error::taxes.gov.az səhifəsi oxunmadı (quruluş dəyişib). Sayt köhnə məlumatla işləməyə davam edir. Ətraflı: 'sync' addımının jurnalı."
+          exit 1
