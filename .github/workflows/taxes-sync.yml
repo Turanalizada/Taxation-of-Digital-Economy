@@ -1,1 +1,119 @@
 
+name: taxes.gov.az avtomatik yeniləmə
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: taxes-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    outputs:
+      updated: ${{ steps.sync.outputs.updated }}
+      changed: ${{ steps.sync.outputs.changed }}
+      error: ${{ steps.sync.outputs.error }}
+
+    steps:
+      - name: Repository-ni yüklə
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Python quraşdır
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Faylları hazırla
+        run: |
+          mkdir -p scripts data
+
+          cp taxes_sync.py scripts/taxes_sync.py
+
+          if [ ! -f data/taxes.json ] && [ -f taxes.json ]; then
+            cp taxes.json data/taxes.json
+          fi
+
+          if [ ! -f data/source-text.txt ] && [ -f source-text.txt ]; then
+            cp source-text.txt data/source-text.txt
+          fi
+
+          if [ ! -f data/faq-baseline.json ] && [ -f faq-baseline.json ]; then
+            cp faq-baseline.json data/faq-baseline.json
+          fi
+
+      - name: Rəsmi səhifəni yoxla
+        id: sync
+        run: python3 scripts/taxes_sync.py
+
+      - name: Dəyişiklikləri GitHub-a göndər
+        if: steps.sync.outputs.updated == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add data
+          git commit -m "taxes.gov.az məlumatları yeniləndi" || true
+          git push
+
+      - name: Dəyişiklik barədə bildiriş
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "taxes.gov.az səhifəsində dəyişiklik" \
+            --body-file change.md
+
+      - name: Sayt üçün faylları hazırla
+        if: github.event_name != 'schedule' || steps.sync.outputs.updated == 'true'
+        run: |
+          mkdir -p _site/data
+          cp index.html _site/
+          cp data/taxes.json _site/data/
+
+      - name: GitHub Pages fayllarını yüklə
+        if: github.event_name != 'schedule' || steps.sync.outputs.updated == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: sync
+    if: github.event_name != 'schedule' || needs.sync.outputs.updated == 'true'
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Saytı yayımla
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  alert:
+    needs: sync
+    if: needs.sync.outputs.error == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Xəta bildirişi
+        run: |
+          echo "::error::taxes.gov.az səhifəsində xəta baş verdi."
+          exit 1
