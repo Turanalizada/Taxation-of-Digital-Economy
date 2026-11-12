@@ -1,6 +1,6 @@
 {
 "source": "https://www.taxes.gov.az/az/page/reqemsal-iqtisadiyyat-uzre-vergitutma",
-"checked": "2026-11-12",
+"checked": "2026-11-13",
 "changed": "2026-11-12",
 "hash": "9af7da0692652da4",
 "warnings": [],
@@ -15,7 +15,7 @@
   ["EPOCT", "ecommerce@taxes.gov.az"],
   ["PLATFORMA", "https://ecommerce.e-taxes.gov.az"],
   ["ODENIS_TELIMATI", "https://www.taxes.gov.az/uploads/2026/beynelxalq/STS%20Payment%20instructions%20for%20VAT%20Azerbaijan.pdf"],
-  ["MELUMAT_TARIXI", "2026-11-12"]
+  ["MELUMAT_TARIXI", "2026-11-13"]
 ],
 "reg": [
   [1, "Apple Distribution International Limited", "İrlandiya", "2024-12-01"],
